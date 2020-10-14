@@ -1,23 +1,11 @@
-import { Padding } from "./mod.ts";
-
-export function signedToUnsigned(signed: number): number {
-  return signed >>> 0;
+/** Packs four bytes in big endian format */
+export function packFourBytes(bytes: [number, number, number, number]) {
+  return bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3];
 }
 
-export function xor(a: number, b: number): number {
-  return signedToUnsigned(a ^ b);
-}
-
-export function sumMod32(a: number, b: number): number {
-  return signedToUnsigned((a + b) | 0);
-}
-
+/** Unpacks four bytes in big endian format */
 // deno-fmt-ignore
-export function packFourBytes(byte1: number, byte2: number, byte3: number, byte4: number) {
-  return signedToUnsigned(byte1 << 24 | byte2 << 16 | byte3 << 8 | byte4);
-}
-
-export function unpackFourBytes(pack: number) {
+export function unpackFourBytes(pack: number): [number, number, number, number] {
   return [
     (pack >>> 24) & 0xFF,
     (pack >>> 16) & 0xFF,
@@ -44,6 +32,14 @@ export function expandKey(key: Uint8Array) {
     }
   }
   return new Uint8Array(longKey);
+}
+
+export enum Padding {
+  PKCS5,
+  ONE_AND_ZEROS,
+  LAST_BYTE,
+  NULL,
+  SPACES,
 }
 
 export function pad(bytes: Uint8Array, padding: Padding) {
@@ -98,8 +94,7 @@ export function unpad(bytes: Uint8Array, padding: Padding) {
       break;
     }
     case Padding.ONE_AND_ZEROS: {
-      let i = 1;
-      while (i <= 8) {
+      for (let i = 1; i <= 8; i++) {
         const char = bytes[bytes.length - i];
         if (char === 0x80) {
           cutLength = i;
@@ -108,7 +103,6 @@ export function unpad(bytes: Uint8Array, padding: Padding) {
         if (char !== 0) {
           break;
         }
-        i++;
       }
       break;
     }
@@ -121,7 +115,6 @@ export function unpad(bytes: Uint8Array, padding: Padding) {
           cutLength = i - 1;
           break;
         }
-        i++;
       }
       break;
     }
