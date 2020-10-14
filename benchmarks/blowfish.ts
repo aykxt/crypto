@@ -5,10 +5,10 @@ import {
 import Blowfish from "../src/blowfish/mod.ts";
 
 bench({
-  name: "BF-ECB 1MiB",
+  name: "BF-ECB 2MiB",
   runs: 50,
   func(b) {
-    const data = new Uint8Array(1024 * 1024);
+    const data = new Uint8Array(1024 * 1024 * 2);
     const bf = new Blowfish("abcdefgh");
     b.start();
     const enc = bf.encrypt(data);
@@ -18,10 +18,10 @@ bench({
 });
 
 bench({
-  name: "BF-CBC 1MiB",
+  name: "BF-CBC 2MiB",
   runs: 50,
   func(b) {
-    const data = new Uint8Array(1024 * 1024);
+    const data = new Uint8Array(1024 * 1024 * 2);
     const bf = new Blowfish(
       "abcdefgh",
       {
