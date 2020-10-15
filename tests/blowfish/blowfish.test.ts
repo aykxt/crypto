@@ -2,7 +2,7 @@ import {
   assertEquals,
   assertThrows,
 } from "https://deno.land/std@0.74.0/testing/asserts.ts";
-import Blowfish from "../../src/blowfish/mod.ts";
+import { Blowfish } from "../../mod.ts";
 
 Deno.test("BF-ECB", () => {
   const bf = new Blowfish("abcdefgh", { padding: Blowfish.PADDING.NONE });
