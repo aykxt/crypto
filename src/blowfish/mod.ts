@@ -1,15 +1,13 @@
+import { pad, Padding, unpad } from "../utils/padding.ts";
 import {
   expandKey,
   packFourBytes,
-  pad,
-  Padding,
   toUint8Array,
   unpackFourBytes,
-  unpad,
-} from "./helpers.ts";
+} from "../utils/helpers.ts";
 
 enum Mode {
-  ECB,
+  ECB = 1,
   CBC,
 }
 
@@ -23,9 +21,10 @@ export default class Blowfish {
   static readonly MODE = Mode;
   static readonly PADDING = Padding;
 
-  mode: Mode;
-  padding: Padding;
+  mode = Mode.ECB;
+  padding = Padding.PKCS7;
   iv?: Uint8Array;
+
   p = Blowfish.P.slice();
   s = [
     Blowfish.S[0].slice(),
@@ -35,17 +34,19 @@ export default class Blowfish {
   ];
 
   constructor(key: string | Uint8Array, options: BlowfishOptions = {}) {
-    this.mode = options.mode || Mode.ECB;
-    this.padding = options.padding || Padding.NULL;
+    if (options) {
+      options.iv && (this.iv = options.iv);
+      options.mode && (this.mode = options.mode);
+      options.padding && (this.padding = options.padding);
+    }
 
     if (this.mode === Mode.CBC) {
-      if (!options.iv) {
+      if (!this.iv) {
         throw new Error("IV is not set.");
       }
-      if (options.iv.length !== 8) {
+      if (this.iv.length !== 8) {
         throw new Error("IV should be 8 bytes length.");
       }
-      this.iv = options.iv;
     }
 
     key = expandKey(toUint8Array(key));
@@ -70,7 +71,7 @@ export default class Blowfish {
   }
 
   encrypt(data: Uint8Array) {
-    data = pad(data, this.padding);
+    data = pad(data, this.padding, 8);
 
     if (this.mode === Blowfish.MODE.ECB) {
       return this.encryptECB(data);
@@ -95,7 +96,7 @@ export default class Blowfish {
       }
     }
 
-    data = unpad(data, this.padding);
+    data = unpad(data, this.padding, 8);
     return data;
   }
 

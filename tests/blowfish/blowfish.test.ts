@@ -5,7 +5,7 @@ import {
 import Blowfish from "../../src/blowfish/mod.ts";
 
 Deno.test("BF-ECB", () => {
-  const bf = new Blowfish("abcdefgh");
+  const bf = new Blowfish("abcdefgh", { padding: Blowfish.PADDING.NONE });
 
   const original = new Uint8Array([97, 98, 99, 100, 101, 102, 103, 104]);
   const expectedEnc = new Uint8Array([49, 76, 81, 95, 230, 247, 169, 237]);
@@ -19,7 +19,11 @@ Deno.test("BF-ECB", () => {
 
 Deno.test("BF-CBC", () => {
   assertThrows(
-    () => new Blowfish("abcdefgh", { mode: Blowfish.MODE.CBC }),
+    () =>
+      new Blowfish(
+        "abcdefgh",
+        { mode: Blowfish.MODE.CBC, padding: Blowfish.PADDING.NONE },
+      ),
     Error,
     "IV is not set.",
   );
@@ -27,7 +31,11 @@ Deno.test("BF-CBC", () => {
     () =>
       new Blowfish(
         "abcdefgh",
-        { mode: Blowfish.MODE.CBC, iv: new Uint8Array([10, 20]) },
+        {
+          mode: Blowfish.MODE.CBC,
+          iv: new Uint8Array([10, 20]),
+          padding: Blowfish.PADDING.NONE,
+        },
       ),
     Error,
     "IV should be 8 bytes length.",
@@ -36,6 +44,7 @@ Deno.test("BF-CBC", () => {
   const bf = new Blowfish("abcdefgh", {
     mode: Blowfish.MODE.CBC,
     iv: new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7]),
+    padding: Blowfish.PADDING.NONE,
   });
 
   const original = new Uint8Array([97, 98, 99, 100, 101, 102, 103, 104]);

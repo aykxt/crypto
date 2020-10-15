@@ -1,59 +1,31 @@
-/** Packs four bytes in big endian format */
-export function packFourBytes(bytes: [number, number, number, number]) {
-  return bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3];
-}
-
-/** Unpacks four bytes in big endian format */
-// deno-fmt-ignore
-export function unpackFourBytes(pack: number): [number, number, number, number] {
-  return [
-    (pack >>> 24) & 0xFF,
-    (pack >>> 16) & 0xFF,
-    (pack >>> 8) & 0xFF,
-    pack & 0xFF,
-  ];
-}
-
-export function toUint8Array(val: string | Uint8Array): Uint8Array {
-  if (typeof val === "string") {
-    return new TextEncoder().encode(val);
-  }
-  return val;
-}
-
-export function expandKey(key: Uint8Array) {
-  if (key.length >= 72) { // 576 bits -> 72 bytes
-    return key;
-  }
-  const longKey = [];
-  while (longKey.length < 72) {
-    for (let i = 0; i < key.length; i++) {
-      longKey.push(key[i]);
-    }
-  }
-  return new Uint8Array(longKey);
-}
-
 export enum Padding {
-  PKCS5,
+  NONE = 1,
+  PKCS7,
   ONE_AND_ZEROS,
   LAST_BYTE,
   NULL,
   SPACES,
 }
 
-export function pad(bytes: Uint8Array, padding: Padding) {
-  const count = 8 - bytes.length % 8;
-  if (count === 8 && bytes.length > 0 && padding !== Padding.PKCS5) {
+export function pad(bytes: Uint8Array, padding: Padding, blockSize: number) {
+  if (padding === Padding.NONE) {
+    if (bytes.length % blockSize === 0) return bytes;
+    else throw new Error("Block size is incorrect.");
+  }
+
+  const count = blockSize - bytes.length % blockSize;
+
+  if (count === blockSize && bytes.length > 0 && padding !== Padding.PKCS7) {
     return bytes;
   }
+
   const writer = new Uint8Array(bytes.length + count);
   const newBytes = [];
   let remaining = count;
   let padChar = 0;
 
   switch (padding) {
-    case Padding.PKCS5: {
+    case Padding.PKCS7: {
       padChar = count;
       break;
     }
@@ -82,19 +54,19 @@ export function pad(bytes: Uint8Array, padding: Padding) {
   return writer;
 }
 
-export function unpad(bytes: Uint8Array, padding: Padding) {
+export function unpad(bytes: Uint8Array, padding: Padding, blockSize: number) {
   let cutLength = 0;
   switch (padding) {
     case Padding.LAST_BYTE:
-    case Padding.PKCS5: {
+    case Padding.PKCS7: {
       const lastChar = bytes[bytes.length - 1];
-      if (lastChar <= 8) {
+      if (lastChar <= blockSize) {
         cutLength = lastChar;
       }
       break;
     }
     case Padding.ONE_AND_ZEROS: {
-      for (let i = 1; i <= 8; i++) {
+      for (let i = 1; i <= blockSize; i++) {
         const char = bytes[bytes.length - i];
         if (char === 0x80) {
           cutLength = i;
@@ -109,7 +81,7 @@ export function unpad(bytes: Uint8Array, padding: Padding) {
     case Padding.NULL:
     case Padding.SPACES: {
       const padChar = (padding === Padding.SPACES) ? 0x20 : 0;
-      for (let i = 1; i <= 8; i++) {
+      for (let i = 1; i <= blockSize; i++) {
         const char = bytes[bytes.length - i];
         if (char !== padChar) {
           cutLength = i - 1;
