@@ -11,10 +11,10 @@ enum Mode {
   CBC,
 }
 
-interface BlowfishOptions {
+export interface BlowfishOptions {
   mode?: Mode;
   padding?: Padding;
-  iv?: Uint8Array;
+  iv?: Uint8Array | string;
 }
 
 export class Blowfish {
@@ -35,7 +35,7 @@ export class Blowfish {
 
   constructor(key: string | Uint8Array, options: BlowfishOptions = {}) {
     if (options) {
-      options.iv && (this.iv = options.iv);
+      options.iv && (this.iv = toUint8Array(options.iv));
       options.mode && (this.mode = options.mode);
       options.padding && (this.padding = options.padding);
     }
