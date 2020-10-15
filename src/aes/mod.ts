@@ -10,23 +10,7 @@ function xtime(x: number) {
   return ((x & 0x80) ? ((x << 1) ^ 0x1b) : (x << 1));
 }
 
-function rotWord(ks: Uint8Array, column: number) {
-  const offset = column * 4;
-  const tmp = ks[offset];
-  ks[offset] = ks[offset + 1];
-  ks[offset + 1] = ks[offset + 2];
-  ks[offset + 2] = ks[offset + 3];
-  ks[offset + 3] = tmp;
-}
-
-function subWord(ks: Uint8Array, column: number) {
-  const offset = column * 4;
-  for (let i = 0; i < 4; i++) {
-    ks[offset + i] = AES.SBOX[ks[offset + i]];
-  }
-}
-
-interface AESOptions {
+export interface AESOptions {
   mode?: Mode;
   iv?: Uint8Array | string;
   padding?: Padding;
@@ -66,6 +50,22 @@ export class AES {
     this.key = AES.keyExpansion(key);
   }
 
+  private static rotWord(ks: Uint8Array, column: number) {
+    const offset = column * 4;
+    const tmp = ks[offset];
+    ks[offset] = ks[offset + 1];
+    ks[offset + 1] = ks[offset + 2];
+    ks[offset + 2] = ks[offset + 3];
+    ks[offset + 3] = tmp;
+  }
+
+  private static subWord(ks: Uint8Array, column: number) {
+    const offset = column * 4;
+    for (let i = 0; i < 4; i++) {
+      ks[offset + i] = AES.SBOX[ks[offset + i]];
+    }
+  }
+
   private static keyExpansion(key: Uint8Array) {
     const nb = 4;
     const nk = key.length / 4;
@@ -83,11 +83,11 @@ export class AES {
       ks[offset + 3] = ks[offset - 1];
 
       if (i % nk === 0) {
-        rotWord(ks, i);
-        subWord(ks, i);
+        AES.rotWord(ks, i);
+        AES.subWord(ks, i);
         ks[offset] ^= AES.RCON[i / nk];
       } else if (nk > 6 && i % nk === 4) {
-        subWord(ks, i);
+        AES.subWord(ks, i);
       }
 
       ks[offset] ^= ks[prevOffset];
@@ -303,12 +303,12 @@ export class AES {
   }
 
   // deno-fmt-ignore
-  static readonly RCON: readonly number[] = [
+  private static readonly RCON: readonly number[] = [
     0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36
   ]
 
   // deno-fmt-ignore
-  static readonly SBOX: readonly number[] = [
+  private static readonly SBOX: readonly number[] = [
     0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,
     0xca,0x82,0xc9,0x7d,0xfa,0x59,0x47,0xf0,0xad,0xd4,0xa2,0xaf,0x9c,0xa4,0x72,0xc0,
     0xb7,0xfd,0x93,0x26,0x36,0x3f,0xf7,0xcc,0x34,0xa5,0xe5,0xf1,0x71,0xd8,0x31,0x15,
@@ -328,7 +328,7 @@ export class AES {
   ];
 
   // deno-fmt-ignore
-  static readonly RSBOX: readonly number[] = [
+  private static readonly RSBOX: readonly number[] = [
     0x52,0x09,0x6a,0xd5,0x30,0x36,0xa5,0x38,0xbf,0x40,0xa3,0x9e,0x81,0xf3,0xd7,0xfb,
     0x7c,0xe3,0x39,0x82,0x9b,0x2f,0xff,0x87,0x34,0x8e,0x43,0x44,0xc4,0xde,0xe9,0xcb,
     0x54,0x7b,0x94,0x32,0xa6,0xc2,0x23,0x3d,0xee,0x4c,0x95,0x0b,0x42,0xfa,0xc3,0x4e,
