@@ -20,16 +20,3 @@ export function toUint8Array(val: string | Uint8Array): Uint8Array {
   }
   return val;
 }
-
-export function expandKey(key: Uint8Array) {
-  if (key.length >= 72) { // 576 bits -> 72 bytes
-    return key;
-  }
-  const longKey = [];
-  while (longKey.length < 72) {
-    for (let i = 0; i < key.length; i++) {
-      longKey.push(key[i]);
-    }
-  }
-  return new Uint8Array(longKey);
-}

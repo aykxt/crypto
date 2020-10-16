@@ -2,7 +2,7 @@ import {
   bench,
   runBenchmarks,
 } from "https://deno.land/std@0.74.0/testing/bench.ts";
-import Blowfish from "../src/blowfish/mod.ts";
+import { Blowfish } from "../src/blowfish/mod.ts";
 
 bench({
   name: "BF-ECB 2MiB",

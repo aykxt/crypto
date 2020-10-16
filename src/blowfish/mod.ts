@@ -1,6 +1,5 @@
 import { pad, Padding, unpad } from "../utils/padding.ts";
 import {
-  expandKey,
   packFourBytes,
   toUint8Array,
   unpackFourBytes,
@@ -13,8 +12,8 @@ enum Mode {
 
 export interface BlowfishOptions {
   mode?: Mode;
-  padding?: Padding;
   iv?: Uint8Array | string;
+  padding?: Padding;
 }
 
 export class Blowfish {
@@ -22,18 +21,18 @@ export class Blowfish {
   static readonly PADDING = Padding;
 
   private mode = Mode.ECB;
-  private padding = Padding.PKCS7;
   private iv?: Uint8Array;
+  private padding = Padding.PKCS7;
 
-  private p = Blowfish.P.slice();
-  private s = [
+  private readonly p = Blowfish.P.slice();
+  private readonly s = [
     Blowfish.S[0].slice(),
     Blowfish.S[1].slice(),
     Blowfish.S[2].slice(),
     Blowfish.S[3].slice(),
   ];
 
-  constructor(key: string | Uint8Array, options: BlowfishOptions = {}) {
+  constructor(key: string | Uint8Array, options?: BlowfishOptions) {
     if (options) {
       options.iv && (this.iv = toUint8Array(options.iv));
       options.mode && (this.mode = options.mode);
@@ -49,7 +48,7 @@ export class Blowfish {
       }
     }
 
-    key = expandKey(toUint8Array(key));
+    key = Blowfish.expandKey(toUint8Array(key));
     for (let i = 0, j = 0; i < 18; i++, j += 4) {
       const n = packFourBytes([key[j], key[j + 1], key[j + 2], key[j + 3]]);
       this.p[i] = this.p[i] ^ n;
@@ -80,7 +79,7 @@ export class Blowfish {
     }
   }
 
-  decrypt(data: Uint8Array) {
+  decrypt(data: Uint8Array): Uint8Array {
     if (data.length % 8 !== 0) {
       throw new Error("Input data should be multiple of 8 bytes");
     }
@@ -96,11 +95,23 @@ export class Blowfish {
       }
     }
 
-    data = unpad(data, this.padding, 8);
-    return data;
+    return unpad(data, this.padding, 8);
   }
 
-  private encryptBlock(l: number, r: number) {
+  private static expandKey(key: Uint8Array): Uint8Array {
+    if (key.length >= 72) {
+      return key;
+    }
+    const longKey = [];
+    while (longKey.length < 72) {
+      for (let i = 0; i < key.length; i++) {
+        longKey.push(key[i]);
+      }
+    }
+    return new Uint8Array(longKey);
+  }
+
+  private encryptBlock(l: number, r: number): [number, number] {
     for (let i = 0; i < 16; i += 2) {
       l ^= this.p[i];
       r ^= this.f(l);
@@ -112,7 +123,7 @@ export class Blowfish {
     return [r, l];
   }
 
-  private decryptBlock(l: number, r: number) {
+  private decryptBlock(l: number, r: number): [number, number] {
     for (let i = 16; i > 0; i -= 2) {
       l ^= this.p[i + 1];
       r ^= this.f(l);
@@ -209,18 +220,19 @@ export class Blowfish {
       decoded.set(unpackFourBytes(l), i);
       decoded.set(unpackFourBytes(r), i + 4);
     }
+
     return decoded;
   }
 
   // deno-fmt-ignore
-  private static readonly P: ReadonlyArray<number> = [
+  private static readonly P: readonly number[] = [
     0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822, 0x299f31d0,
     0x082efa98, 0xec4e6c89, 0x452821e6, 0x38d01377, 0xbe5466cf, 0x34e90c6c,
     0xc0ac29b7, 0xc97c50dd, 0x3f84d5b5, 0xb5470917, 0x9216d5d9, 0x8979fb1b
   ];
 
   // deno-fmt-ignore
-  private static readonly S: ReadonlyArray<ReadonlyArray<number>> = [
+  private static readonly S: readonly (readonly number[])[] = [
     [
       0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7, 0xb8e1afed, 0x6a267e96,
       0xba7c9045, 0xf12c7f99, 0x24a19947, 0xb3916cf7, 0x0801f2e2, 0x858efc16,

@@ -160,10 +160,9 @@ export class AES {
   }
 
   private static mixColumns(state: Uint8Array) {
-    let i;
     let a, b, c, d, e;
 
-    for (i = 0; i < 16; i += 4) {
+    for (let i = 0; i < 16; i += 4) {
       a = state[i];
       b = state[i + 1];
       c = state[i + 2];
@@ -178,11 +177,9 @@ export class AES {
   }
 
   private static invMixColumns(state: Uint8Array) {
-    let i;
-    let a, b, c, d, e;
-    let x, y, z;
+    let a, b, c, d, e, x, y, z;
 
-    for (i = 0; i < 16; i += 4) {
+    for (let i = 0; i < 16; i += 4) {
       a = state[i];
       b = state[i + 1];
       c = state[i + 2];

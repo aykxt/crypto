@@ -9,7 +9,9 @@ bench({
   runs: 50,
   func(b) {
     const data = new Uint8Array(1024 * 1024 * 2);
-    const bf = new AES("abcdefghijklmnop");
+    const bf = new AES("abcdefghijklmnop", {
+      padding: AES.PADDING.NONE,
+    });
     b.start();
     const enc = bf.encrypt(data);
     bf.decrypt(enc);
@@ -27,7 +29,7 @@ bench({
       {
         mode: AES.MODE.CBC,
         // deno-fmt-ignore
-        iv: new Uint8Array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160]),
+        iv: "abcdefghijklmnop",
         padding: AES.PADDING.NONE,
       },
     );
