@@ -4,7 +4,7 @@ A collection of useful crypto algorithms written in Typescript.
 
 ## Supported algorithms
 
-### Block chiphers
+### Block ciphers
 - AES
 - Blowfish
 - ECB and CBC block modes
