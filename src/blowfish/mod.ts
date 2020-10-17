@@ -24,8 +24,8 @@ export class Blowfish {
   private iv?: Uint8Array;
   private padding = Padding.PKCS7;
 
-  private readonly p = Blowfish.P.slice();
-  private readonly s = [
+  private readonly p: number[] = Blowfish.P.slice();
+  private readonly s: number[][] = [
     Blowfish.S[0].slice(),
     Blowfish.S[1].slice(),
     Blowfish.S[2].slice(),
@@ -69,7 +69,7 @@ export class Blowfish {
     }
   }
 
-  encrypt(data: Uint8Array) {
+  encrypt(data: Uint8Array): Uint8Array {
     data = pad(data, this.padding, 8);
 
     if (this.mode === Blowfish.MODE.ECB) {
@@ -140,7 +140,7 @@ export class Blowfish {
       this.s[2][x >>> 8 & 0xff]) + this.s[3][x & 0xff];
   }
 
-  private encryptECB(bytes: Uint8Array) {
+  private encryptECB(bytes: Uint8Array): Uint8Array {
     const encoded = new Uint8Array(bytes.length);
     for (let i = 0; i < bytes.length; i += 8) {
       let l = packFourBytes(
@@ -156,7 +156,7 @@ export class Blowfish {
     return encoded;
   }
 
-  private encryptCBC(bytes: Uint8Array) {
+  private encryptCBC(bytes: Uint8Array): Uint8Array {
     const encoded = new Uint8Array(bytes.length);
     let prevL = packFourBytes(
       [this.iv![0], this.iv![1], this.iv![2], this.iv![3]],
@@ -180,7 +180,7 @@ export class Blowfish {
     return encoded;
   }
 
-  private decryptECB(bytes: Uint8Array) {
+  private decryptECB(bytes: Uint8Array): Uint8Array {
     const decoded = new Uint8Array(bytes.length);
     for (let i = 0; i < bytes.length; i += 8) {
       let l = packFourBytes(
@@ -196,7 +196,7 @@ export class Blowfish {
     return decoded;
   }
 
-  private decryptCBC(bytes: Uint8Array) {
+  private decryptCBC(bytes: Uint8Array): Uint8Array {
     const decoded = new Uint8Array(bytes.length);
     let prevL = packFourBytes(
       [this.iv![0], this.iv![1], this.iv![2], this.iv![3]],
@@ -225,14 +225,14 @@ export class Blowfish {
   }
 
   // deno-fmt-ignore
-  private static readonly P: readonly number[] = [
+  private static readonly P = [
     0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822, 0x299f31d0,
     0x082efa98, 0xec4e6c89, 0x452821e6, 0x38d01377, 0xbe5466cf, 0x34e90c6c,
     0xc0ac29b7, 0xc97c50dd, 0x3f84d5b5, 0xb5470917, 0x9216d5d9, 0x8979fb1b
-  ];
+  ] as const;
 
   // deno-fmt-ignore
-  private static readonly S: readonly (readonly number[])[] = [
+  private static readonly S = [
     [
       0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7, 0xb8e1afed, 0x6a267e96,
       0xba7c9045, 0xf12c7f99, 0x24a19947, 0xb3916cf7, 0x0801f2e2, 0x858efc16,
@@ -410,5 +410,5 @@ export class Blowfish {
       0x01c36ae4, 0xd6ebe1f9, 0x90d4f869, 0xa65cdea0, 0x3f09252d, 0xc208e69f,
       0xb74e6132, 0xce77e25b, 0x578fdfe3, 0x3ac372e6
     ]
-  ];
+  ] as const;
 }
