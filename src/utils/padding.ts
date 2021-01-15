@@ -57,6 +57,9 @@ export function pad(bytes: Uint8Array, padding: Padding, blockSize: number) {
 export function unpad(bytes: Uint8Array, padding: Padding, blockSize: number) {
   let cutLength = 0;
   switch (padding) {
+    case Padding.NONE: {
+      return bytes;
+    }
     case Padding.LAST_BYTE:
     case Padding.PKCS7: {
       const lastChar = bytes[bytes.length - 1];
