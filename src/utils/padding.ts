@@ -7,10 +7,16 @@ export enum Padding {
   SPACES,
 }
 
-export function pad(bytes: Uint8Array, padding: Padding, blockSize: number) {
+export function pad(
+  bytes: Uint8Array,
+  padding: Padding,
+  blockSize: number,
+): Uint8Array {
   if (padding === Padding.NONE) {
     if (bytes.length % blockSize === 0) return bytes;
-    else throw new Error("Block size is incorrect.");
+    else {
+      throw new Error(`Incorrect block size (must be ${blockSize} bytes long)`);
+    }
   }
 
   const count = blockSize - bytes.length % blockSize;
@@ -54,7 +60,11 @@ export function pad(bytes: Uint8Array, padding: Padding, blockSize: number) {
   return writer;
 }
 
-export function unpad(bytes: Uint8Array, padding: Padding, blockSize: number) {
+export function unpad(
+  bytes: Uint8Array,
+  padding: Padding,
+  blockSize: number,
+): Uint8Array {
   let cutLength = 0;
   switch (padding) {
     case Padding.NONE: {

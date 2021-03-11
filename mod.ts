@@ -1,2 +1,3 @@
-export { Blowfish } from "./src/blowfish/mod.ts";
-export { AES } from "./src/aes/mod.ts";
+export { BlowfishCbc, BlowfishEcb } from "./blowfish.ts";
+export { AesCbc, AesEcb } from "./aes.ts";
+export { Padding } from "./src/utils/padding.ts";

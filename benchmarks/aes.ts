@@ -1,41 +1,101 @@
-import {
-  bench,
-  runBenchmarks,
-} from "https://deno.land/std@0.74.0/testing/bench.ts";
-import { AES } from "../src/aes/mod.ts";
+import { bench, runBenchmarks } from "../dev_deps.ts";
+import { AesCbc, AesEcb } from "../src/aes/mod.ts";
+import { AES as GodCryptoAES } from "https://deno.land/x/god_crypto@v1.4.9/aes.ts";
+
+// deno-fmt-ignore
+const key = new Uint8Array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
+const data = new Uint8Array(1024 * 1024 * 2);
 
 bench({
-  name: "AES-ECB 2MiB",
+  name: "AES-128-ECB 2MiB Encrypt",
   runs: 50,
   func(b) {
-    const data = new Uint8Array(1024 * 1024 * 2);
-    const bf = new AES("abcdefghijklmnop", {
-      padding: AES.PADDING.NONE,
-    });
+    const cipher = new AesEcb(key);
     b.start();
-    const enc = bf.encrypt(data);
-    bf.decrypt(enc);
+    cipher.encrypt(data);
     b.stop();
   },
 });
 
 bench({
-  name: "AES-CBC 2MiB",
+  name: "AES-128-ECB 2MiB Decrypt",
   runs: 50,
   func(b) {
-    const data = new Uint8Array(1024 * 1024 * 2);
-    const bf = new AES(
-      "abcdefghijklmnop",
-      {
-        mode: AES.MODE.CBC,
-        // deno-fmt-ignore
-        iv: "abcdefghijklmnop",
-        padding: AES.PADDING.NONE,
-      },
-    );
+    const cipher = new AesEcb(key);
     b.start();
-    const enc = bf.encrypt(data);
-    bf.decrypt(enc);
+    cipher.decrypt(data);
+    b.stop();
+  },
+});
+
+bench({
+  name: "AES-128-CBC 2MiB Encrypt",
+  runs: 50,
+  func(b) {
+    const cipher = new AesCbc(key, new Uint8Array(16));
+    b.start();
+    cipher.encrypt(data);
+    b.stop();
+  },
+});
+
+bench({
+  name: "AES-128-CBC 2MiB Decrypt",
+  runs: 50,
+  func(b) {
+    const cipher = new AesCbc(key, new Uint8Array(16));
+    b.start();
+    cipher.decrypt(data);
+    b.stop();
+  },
+});
+
+bench({
+  name: "AES-128-ECB (GodCrypto) 2MiB Encrypt",
+  runs: 5, // takes too long
+  async func(b) {
+    const cipher = new GodCryptoAES(key, { mode: "ecb" });
+    b.start();
+    await cipher.encrypt(data);
+    b.stop();
+  },
+});
+
+bench({
+  name: "AES-128-ECB (GodCrypto) 2MiB Decrypt",
+  runs: 5, // takes too long
+  async func(b) {
+    const cipher = new GodCryptoAES(key, { mode: "ecb" });
+    b.start();
+    await cipher.decrypt(data);
+    b.stop();
+  },
+});
+
+bench({
+  name: "AES-128-CBC (GodCrypto) 2MiB Encrypt",
+  runs: 5, // takes too long
+  async func(b) {
+    const cipher = new GodCryptoAES(key, {
+      mode: "cbc",
+      iv: new Uint8Array(16),
+    });
+    b.start();
+    await cipher.encrypt(data);
+    b.stop();
+  },
+});
+
+bench({
+  name: "AES-128-CBC (GodCrypto) 2MiB Decrypt",
+  runs: 5, // takes too long
+  async func(b) {
+    const cipher = new GodCryptoAES(key, {
+      mode: "cbc",
+      iv: new Uint8Array(16),
+    });
+    b.start();
+    await cipher.decrypt(data);
     b.stop();
   },
 });
