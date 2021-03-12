@@ -15,26 +15,24 @@ export class AesEcb implements BlockCipher {
   encrypt(data: Uint8Array): Uint8Array {
     data = pad(data, this.padding, AES.BLOCK_SIZE);
 
-    const encrypted = new Uint8Array(data.length);
+    const encrypted = data.slice();
 
-    for (let i = 0; i < data.length; i += 16) {
-      const block = data.slice(i, i + 16);
-      encrypted.set(this.#aes.encrypt(block), i);
+    for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
+      this.#aes.encrypt(encrypted.subarray(i, i + AES.BLOCK_SIZE));
     }
 
     return encrypted;
   }
 
   decrypt(data: Uint8Array): Uint8Array {
-    if ((data.length % 16) !== 0) {
+    if ((data.length % AES.BLOCK_SIZE) !== 0) {
       throw new Error("invalid data size (must be multiple of 16 bytes)");
     }
 
-    const decrypted = new Uint8Array(data.length);
+    const decrypted = data.slice();
 
-    for (let i = 0; i < data.length; i += 16) {
-      const block = data.slice(i, i + 16);
-      decrypted.set(this.#aes.decrypt(block), i);
+    for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
+      this.#aes.decrypt(decrypted.subarray(i, i + AES.BLOCK_SIZE));
     }
 
     return unpad(decrypted, this.padding, AES.BLOCK_SIZE);
@@ -50,7 +48,7 @@ export class AesCbc implements BlockCipher {
     iv: Uint8Array,
     private padding: Padding = Padding.NONE,
   ) {
-    if (iv.length != 16) {
+    if (iv.length != AES.BLOCK_SIZE) {
       throw new Error("invalid initialation vector size (must be 16 bytes)");
     }
 
@@ -61,17 +59,17 @@ export class AesCbc implements BlockCipher {
   encrypt(data: Uint8Array): Uint8Array {
     data = pad(data, this.padding, AES.BLOCK_SIZE);
 
-    const encrypted = new Uint8Array(data.length);
+    const encrypted = data.slice();
 
-    for (let i = 0; i < data.length; i += 16) {
-      const block = data.slice(i, i + 16);
+    for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
+      const block = encrypted.subarray(i, i + AES.BLOCK_SIZE);
 
-      for (let j = 0; j < 16; j++) {
+      for (let j = 0; j < AES.BLOCK_SIZE; j++) {
         block[j] ^= this.#prev[j];
       }
 
-      this.#prev = this.#aes.encrypt(block);
-      encrypted.set(this.#prev, i);
+      this.#aes.encrypt(block);
+      this.#prev = block;
     }
 
     return encrypted;
@@ -82,16 +80,17 @@ export class AesCbc implements BlockCipher {
       throw new Error("invalid data size (must be multiple of 16 bytes)");
     }
 
-    const decrypted = new Uint8Array(data.length);
+    const decrypted = data.slice();
 
-    for (let i = 0; i < data.length; i += 16) {
-      const block = this.#aes.decrypt(data.slice(i, i + 16));
+    for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
+      const block = decrypted.subarray(i, i + AES.BLOCK_SIZE);
+      this.#aes.decrypt(block);
 
-      for (let j = 0; j < 16; j++) {
-        decrypted[i + j] = block[j] ^ this.#prev[j];
+      for (let j = 0; j < AES.BLOCK_SIZE; j++) {
+        block[j] ^= this.#prev[j];
       }
 
-      this.#prev = data.slice(i, i + 16);
+      this.#prev = data.subarray(i, i + AES.BLOCK_SIZE);
     }
 
     return unpad(decrypted, this.padding, AES.BLOCK_SIZE);

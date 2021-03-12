@@ -83,7 +83,7 @@ export class AES {
     }
   }
 
-  encrypt(data: Uint8Array): Uint8Array {
+  encrypt(data: Uint8Array) {
     let t0 = ((data[0] << 24) |
       (data[1] << 16) |
       (data[2] << 8) |
@@ -131,34 +131,32 @@ export class AES {
       t3 = a3;
     }
 
-    const decrypted = new Uint8Array(16);
     let tt = this.#ke[4 * this.#nr];
-    decrypted[0] = S[t0 >>> 24] ^ (tt >>> 24);
-    decrypted[1] = (S[(t1 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
-    decrypted[2] = (S[(t2 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
-    decrypted[3] = (S[t3 & 0xff] ^ tt) & 0xff;
+    data[0] = S[t0 >>> 24] ^ (tt >>> 24);
+    data[1] = (S[(t1 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
+    data[2] = (S[(t2 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
+    data[3] = (S[t3 & 0xff] ^ tt) & 0xff;
 
     tt = this.#ke[4 * this.#nr + 1];
-    decrypted[4] = S[t1 >>> 24] ^ (tt >>> 24);
-    decrypted[5] = (S[(t2 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
-    decrypted[6] = (S[(t3 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
-    decrypted[7] = (S[t0 & 0xff] ^ tt) & 0xff;
+    data[4] = S[t1 >>> 24] ^ (tt >>> 24);
+    data[5] = (S[(t2 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
+    data[6] = (S[(t3 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
+    data[7] = (S[t0 & 0xff] ^ tt) & 0xff;
 
     tt = this.#ke[4 * this.#nr + 2];
-    decrypted[8] = S[t2 >>> 24] ^ (tt >>> 24);
-    decrypted[9] = (S[(t3 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
-    decrypted[10] = (S[(t0 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
-    decrypted[11] = (S[t1 & 0xff] ^ tt) & 0xff;
+    data[8] = S[t2 >>> 24] ^ (tt >>> 24);
+    data[9] = (S[(t3 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
+    data[10] = (S[(t0 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
+    data[11] = (S[t1 & 0xff] ^ tt) & 0xff;
 
     tt = this.#ke[4 * this.#nr + 3];
-    decrypted[12] = S[t3 >>> 24] ^ (tt >>> 24);
-    decrypted[13] = (S[(t0 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
-    decrypted[14] = (S[(t1 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
-    decrypted[15] = (S[t2 & 0xff] ^ tt) & 0xff;
-    return decrypted;
+    data[12] = S[t3 >>> 24] ^ (tt >>> 24);
+    data[13] = (S[(t0 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
+    data[14] = (S[(t1 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
+    data[15] = (S[t2 & 0xff] ^ tt) & 0xff;
   }
 
-  decrypt(data: Uint8Array): Uint8Array {
+  decrypt(data: Uint8Array) {
     let t0 = ((data[0] << 24) |
       (data[1] << 16) |
       (data[2] << 8) |
@@ -206,30 +204,28 @@ export class AES {
       t3 = a3;
     }
 
-    const encrypted = new Uint8Array(16);
     let tt = this.#kd[4 * this.#nr];
-    encrypted[0] = SI[t0 >>> 24] ^ (tt >>> 24);
-    encrypted[1] = (SI[(t3 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
-    encrypted[2] = (SI[(t2 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
-    encrypted[3] = (SI[t1 & 0xff] ^ tt) & 0xff;
+    data[0] = SI[t0 >>> 24] ^ (tt >>> 24);
+    data[1] = (SI[(t3 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
+    data[2] = (SI[(t2 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
+    data[3] = (SI[t1 & 0xff] ^ tt) & 0xff;
 
     tt = this.#kd[4 * this.#nr + 1];
-    encrypted[4] = SI[t1 >>> 24] ^ (tt >>> 24);
-    encrypted[5] = (SI[(t0 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
-    encrypted[6] = (SI[(t3 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
-    encrypted[7] = (SI[t2 & 0xff] ^ tt) & 0xff;
+    data[4] = SI[t1 >>> 24] ^ (tt >>> 24);
+    data[5] = (SI[(t0 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
+    data[6] = (SI[(t3 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
+    data[7] = (SI[t2 & 0xff] ^ tt) & 0xff;
 
     tt = this.#kd[4 * this.#nr + 2];
-    encrypted[8] = SI[t2 >>> 24] ^ tt >>> 24;
-    encrypted[9] = (SI[(t1 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
-    encrypted[10] = (SI[(t0 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
-    encrypted[11] = (SI[t3 & 0xff] ^ tt) & 0xff;
+    data[8] = SI[t2 >>> 24] ^ tt >>> 24;
+    data[9] = (SI[(t1 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
+    data[10] = (SI[(t0 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
+    data[11] = (SI[t3 & 0xff] ^ tt) & 0xff;
 
     tt = this.#kd[4 * this.#nr + 3];
-    encrypted[12] = SI[t3 >>> 24] ^ (tt >> 24);
-    encrypted[13] = (SI[(t2 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
-    encrypted[14] = (SI[(t1 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
-    encrypted[15] = (SI[t0 & 0xff] ^ tt) & 0xff;
-    return encrypted;
+    data[12] = SI[t3 >>> 24] ^ (tt >> 24);
+    data[13] = (SI[(t2 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
+    data[14] = (SI[(t1 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
+    data[15] = (SI[t0 & 0xff] ^ tt) & 0xff;
   }
 }
