@@ -1,5 +1,5 @@
-import { assertEquals } from "../dev_deps.ts";
-import { AesCbc, AesEcb } from "../aes.ts";
+import { assertEquals, assertThrows } from "../dev_deps.ts";
+import { AesCbc, AesCfb, AesEcb } from "../aes.ts";
 
 // deno-fmt-ignore
 const iv = new Uint8Array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
@@ -19,6 +19,14 @@ Deno.test("AES-128-ECB ", () => {
 
   const dec = cipher.decrypt(enc);
   assertEquals(dec, original);
+
+  assertThrows(
+    () => {
+      new AesEcb(new Uint8Array(17));
+    },
+    Error,
+    "Invalid key size (must be either 16, 24 or 32 bytes)",
+  );
 });
 
 Deno.test("AES-192-ECB", () => {
@@ -48,6 +56,22 @@ Deno.test("AES-128-CBC", () => {
   const key = new Uint8Array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
   const cipher = new AesCbc(key, iv);
   const decipher = new AesCbc(key, iv);
+
+  const enc = cipher.encrypt(original);
+  const dec = decipher.decrypt(enc);
+
+  assertEquals(dec, original);
+});
+
+Deno.test("AES-128-CFB ", () => {
+  // deno-fmt-ignore
+  const key = new Uint8Array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
+  const iv = new Uint8Array(16);
+
+  const original = new Uint8Array(32);
+
+  const cipher = new AesCfb(key, iv);
+  const decipher = new AesCfb(key, iv);
 
   const enc = cipher.encrypt(original);
   const dec = decipher.decrypt(enc);

@@ -9,7 +9,7 @@ export class AES {
 
   constructor(key: Uint8Array) {
     if (![16, 24, 32].includes(key.length)) {
-      throw new Error("Key must be 16, 24 or 32 bytes long");
+      throw new Error("Invalid key size (must be either 16, 24 or 32 bytes)");
     }
 
     const nk = key.length / 4;

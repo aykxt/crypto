@@ -1,1 +1,1 @@
-export { AesCbc, AesEcb } from "./cipher.ts";
+export { AesCbc, AesCfb, AesEcb } from "./cipher.ts";
