@@ -13,7 +13,7 @@ export class Blowfish {
 
   constructor(key: Uint8Array) {
     if (key.length < 4 || key.length > 56) {
-      throw new Error("Invalid key length");
+      throw new Error("Invalid key size (must be between 4 and 56 bytes)");
     }
 
     const longKey: number[] = [];
