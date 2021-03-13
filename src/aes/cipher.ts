@@ -157,3 +157,34 @@ export class AesCfb implements BlockCipher {
     return unpad(decrypted, this.padding, AES.BLOCK_SIZE);
   }
 }
+
+export class AesOfb implements BlockCipher {
+  #aes: AES;
+  #prev: Uint8Array;
+
+  constructor(
+    key: Uint8Array,
+    iv: Uint8Array,
+  ) {
+    checkIvSize(iv.length);
+
+    this.#prev = iv.slice();
+    this.#aes = new AES(key);
+  }
+
+  encrypt(data: Uint8Array): Uint8Array {
+    const encrypted = data.slice();
+
+    for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
+      this.#aes.encrypt(this.#prev);
+
+      for (let j = 0; j < AES.BLOCK_SIZE; j++) {
+        encrypted[i + j] ^= this.#prev[j];
+      }
+    }
+
+    return encrypted;
+  }
+
+  decrypt = this.encrypt;
+}
