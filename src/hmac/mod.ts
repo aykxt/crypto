@@ -1,6 +1,6 @@
 import { createHash, SupportedAlgorithm } from "../../deps.ts";
 
-export type { SupportedAlgorithm };
+export type { SupportedAlgorithm } from "../../deps.ts";
 
 const blockSizes: Record<SupportedAlgorithm, number> = {
   "sha3-512": 72,

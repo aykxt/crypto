@@ -1,8 +1,8 @@
 import { runBenchmarks } from "../dev_deps.ts";
-import { parseBenchmarkArgs } from "./utils/parseBenchmarkArgs.ts";
+import { args } from "./utils/benchmarkArgs.ts";
 import "./aes.ts";
 import "./blowfish.ts";
 
-const { runs: _, ...opts } = parseBenchmarkArgs();
+const { runs: _, ...opts } = args;
 
 runBenchmarks(opts);

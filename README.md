@@ -13,7 +13,7 @@ A collection of useful crypto algorithms written in Typescript.
 
 - AES (Advanced Encryption Standard)
 - Blowfish
-- ECB and CBC block modes
+- ECB, CBC, CFB and OFB block modes
 
 ## Examples
 

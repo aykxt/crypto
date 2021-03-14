@@ -1,9 +1,9 @@
 import { bench, runBenchmarks } from "../dev_deps.ts";
 import { AesCbc, AesCfb, AesEcb, AesOfb } from "../src/aes/mod.ts";
 import { AES as GodCryptoAES } from "https://deno.land/x/god_crypto@v1.4.9/aes.ts";
-import { parseBenchmarkArgs } from "./utils/parseBenchmarkArgs.ts";
+import { args } from "./utils/benchmarkArgs.ts";
 
-const { runs: _runs, ...opts } = parseBenchmarkArgs();
+const { runs: _runs, ...opts } = args;
 const runs = _runs || 25;
 
 // deno-fmt-ignore

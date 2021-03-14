@@ -1,1 +1,6 @@
-export { BlowfishCbc, BlowfishEcb } from "./cipher.ts";
+export {
+  BlowfishCbc,
+  BlowfishCfb,
+  BlowfishEcb,
+  BlowfishOfb,
+} from "./cipher.ts";

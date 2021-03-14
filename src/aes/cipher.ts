@@ -1,6 +1,6 @@
 import { AES } from "./aes.ts";
 import { pad, Padding, unpad } from "../utils/padding.ts";
-import { BlockCipher } from "../common/blockcipher.ts";
+import type { BlockCipher } from "../common/blockcipher.ts";
 
 function checkBlockSize(size: number) {
   if (size % AES.BLOCK_SIZE !== 0) {
