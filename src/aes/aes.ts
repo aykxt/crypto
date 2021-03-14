@@ -1,5 +1,4 @@
-//deno-fmt-ignore
-import { RCON, S, SI, T1, T2, T3, T4, T5, T6, T7, T8, U1, U2, U3, U4 } from "./consts.ts";
+import { S, SI, T1, T2, T3, T4, T5, T6, T7, T8 } from "./consts.ts";
 
 export class AES {
   static readonly BLOCK_SIZE = 16;
@@ -12,15 +11,7 @@ export class AES {
       throw new Error("Invalid key size (must be either 16, 24 or 32 bytes)");
     }
 
-    const nk = key.length / 4;
-    this.#nr = nk + 6;
-
-    const rkc = (this.#nr + 1) * 4;
-
-    this.#ke = new Uint32Array(rkc);
-    this.#kd = new Uint32Array(rkc);
-
-    const tk = new Uint32Array(key.length);
+    const tk = new Uint32Array(key.length / 4);
     for (let i = 0; i < key.length; i += 4) {
       tk[i / 4] = (key[i] << 24) |
         (key[i + 1] << 16) |
@@ -28,57 +19,43 @@ export class AES {
         key[i + 3];
     }
 
-    for (let i = 0; i < nk; i++) {
-      this.#ke[i] = tk[i];
-      this.#kd[(this.#nr - (i >> 2)) * 4 + (i % 4)] = tk[i];
+    const rkc = key.length + 28;
+
+    this.#nr = key.length / 4 + 6;
+    this.#ke = new Uint32Array(rkc);
+    this.#kd = new Uint32Array(rkc);
+
+    this.#ke.set(tk);
+
+    let rcon = 1;
+
+    for (let i = tk.length; i < rkc; i++) {
+      let tmp = this.#ke[i - 1];
+
+      if (i % tk.length === 0 || (tk.length === 8 && i % tk.length === 4)) {
+        tmp = S[tmp >>> 24] << 24 ^ S[(tmp >> 16) & 0xff] << 16 ^
+          S[(tmp >> 8) & 0xff] << 8 ^ S[tmp & 0xff];
+
+        if (i % tk.length === 0) {
+          tmp = tmp << 8 ^ tmp >>> 24 ^ (rcon << 24);
+          rcon = rcon << 1 ^ (rcon >> 7) * 0x11b;
+        }
+      }
+
+      this.#ke[i] = this.#ke[i - tk.length] ^ tmp;
     }
 
-    let rconptr = 0;
-    let t = nk, tt;
-    while (t < rkc) {
-      tt = tk[nk - 1];
-      tk[0] ^= (S[(tt >> 16) & 0xff] << 24) ^
-        (S[(tt >> 8) & 0xff] << 16) ^
-        (S[tt & 0xff] << 8) ^
-        S[tt >>> 24] ^
-        (RCON[rconptr] << 24);
-      rconptr++;
-
-      if (nk != 8) {
-        for (let i = 1; i < nk; i++) {
-          tk[i] ^= tk[i - 1];
-        }
+    for (let j = 0, i = rkc; i; j++, i--) {
+      const tmp = this.#ke[j & 3 ? i : i - 4];
+      if (i <= 4 || j < 4) {
+        this.#kd[j] = tmp;
       } else {
-        for (let i = 1; i < (nk / 2); i++) {
-          tk[i] ^= tk[i - 1];
-        }
-        tt = tk[(nk / 2) - 1];
-
-        tk[nk / 2] ^= (S[tt & 0xff] ^
-          (S[(tt >> 8) & 0xff] << 8) ^
-          (S[(tt >> 16) & 0xff] << 16) ^
-          (S[tt >>> 24] << 24));
-
-        for (let i = (nk / 2) + 1; i < nk; i++) {
-          tk[i] ^= tk[i - 1];
-        }
-      }
-
-      let i = 0;
-      while (i < nk && t < rkc) {
-        this.#ke[t] = tk[i];
-        this.#kd[(this.#nr - (t >> 2)) * 4 + (t % 4)] = tk[i++];
-        t++;
-      }
-    }
-
-    for (let r = 1; r < this.#nr; r++) {
-      for (let c = 0; c < 4; c++) {
-        tt = this.#kd[4 * r + c];
-        this.#kd[4 * r + c] = (U1[(tt >> 24) & 0xff] ^
-          U2[(tt >> 16) & 0xff] ^
-          U3[(tt >> 8) & 0xff] ^
-          U4[tt & 0xff]);
+        this.#kd[j] = (
+          T5[S[tmp >>> 24]] ^
+          T6[S[(tmp >> 16) & 0xff]] ^
+          T7[S[(tmp >> 8) & 0xff]] ^
+          T8[S[tmp & 0xff]]
+        );
       }
     }
   }
@@ -164,7 +141,7 @@ export class AES {
     let t1 = ((data[4] << 24) |
       (data[5] << 16) |
       (data[6] << 8) |
-      data[7]) ^ this.#kd[1];
+      data[7]) ^ this.#kd[3];
     let t2 = ((data[8] << 24) |
       (data[9] << 16) |
       (data[10] << 8) |
@@ -172,7 +149,7 @@ export class AES {
     let t3 = ((data[12] << 24) |
       (data[13] << 16) |
       (data[14] << 8) |
-      data[15]) ^ this.#kd[3];
+      data[15]) ^ this.#kd[1];
 
     for (let r = 1; r < this.#nr; r++) {
       const a0 = T5[t0 >>> 24] ^
@@ -185,7 +162,7 @@ export class AES {
         T6[(t0 >> 16) & 0xff] ^
         T7[(t3 >> 8) & 0xff] ^
         T8[t2 & 0xff] ^
-        this.#kd[4 * r + 1];
+        this.#kd[4 * r + 3];
 
       const a2 = T5[t2 >>> 24] ^
         T6[(t1 >> 16) & 0xff] ^
@@ -197,7 +174,7 @@ export class AES {
         T6[(t2 >> 16) & 0xff] ^
         T7[(t1 >> 8) & 0xff] ^
         T8[t0 & 0xff] ^
-        this.#kd[4 * r + 3];
+        this.#kd[4 * r + 1];
       t0 = a0;
       t1 = a1;
       t2 = a2;
@@ -210,7 +187,7 @@ export class AES {
     data[2] = (SI[(t2 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
     data[3] = (SI[t1 & 0xff] ^ tt) & 0xff;
 
-    tt = this.#kd[4 * this.#nr + 1];
+    tt = this.#kd[4 * this.#nr + 3];
     data[4] = SI[t1 >>> 24] ^ (tt >>> 24);
     data[5] = (SI[(t0 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
     data[6] = (SI[(t3 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
@@ -222,7 +199,7 @@ export class AES {
     data[10] = (SI[(t0 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;
     data[11] = (SI[t3 & 0xff] ^ tt) & 0xff;
 
-    tt = this.#kd[4 * this.#nr + 3];
+    tt = this.#kd[4 * this.#nr + 1];
     data[12] = SI[t3 >>> 24] ^ (tt >> 24);
     data[13] = (SI[(t2 >> 16) & 0xff] ^ (tt >> 16)) & 0xff;
     data[14] = (SI[(t1 >> 8) & 0xff] ^ (tt >> 8)) & 0xff;

@@ -42,7 +42,7 @@ Deno.test("AES-192-ECB", () => {
 
 Deno.test("AES-256-ECB", () => {
   // deno-fmt-ignore
-  const key = new Uint8Array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]);
+  const key = new Uint8Array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32]);
   const cipher = new AesEcb(key);
 
   const enc = cipher.encrypt(original);
