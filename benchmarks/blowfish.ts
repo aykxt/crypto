@@ -1,10 +1,6 @@
 import { bench, runBenchmarks } from "../dev_deps.ts";
-import {
-  BlowfishCbc,
-  BlowfishCfb,
-  BlowfishEcb,
-  BlowfishOfb,
-} from "../src/blowfish/mod.ts";
+import { Blowfish } from "../blowfish.ts";
+import { Cbc, Cfb, Ecb, Ofb } from "../block-modes.ts";
 import { args } from "./utils/benchmarkArgs.ts";
 
 const { runs: _runs, ...opts } = args;
@@ -18,7 +14,18 @@ bench({
   name: "Blowfish-ECB 2MiB Encrypt",
   runs,
   func(b) {
-    const cipher = new BlowfishEcb(key);
+    const cipher = new Ecb(Blowfish, key);
+    b.start();
+    cipher.encrypt(data);
+    b.stop();
+  },
+});
+
+bench({
+  name: "Blowfish-ECB 2MiB Encrypt",
+  runs,
+  func(b) {
+    const cipher = new Ecb(Blowfish, key);
     b.start();
     cipher.encrypt(data);
     b.stop();
@@ -29,7 +36,7 @@ bench({
   name: "Blowfish-ECB 2MiB Decrypt",
   runs,
   func(b) {
-    const cipher = new BlowfishEcb(key);
+    const cipher = new Ecb(Blowfish, key);
     b.start();
     cipher.decrypt(data);
     b.stop();
@@ -40,7 +47,7 @@ bench({
   name: "Blowfish-CBC 2MiB Encrypt",
   runs,
   func(b) {
-    const cipher = new BlowfishCbc(key, iv);
+    const cipher = new Cbc(Blowfish, key, iv);
 
     b.start();
     cipher.encrypt(data);
@@ -52,7 +59,7 @@ bench({
   name: "Blowfish-CBC 2MiB Decrypt",
   runs,
   func(b) {
-    const bf = new BlowfishCbc(key, iv);
+    const bf = new Cbc(Blowfish, key, iv);
     b.start();
     bf.decrypt(data);
     b.stop();
@@ -63,7 +70,7 @@ bench({
   name: "Blowfish-CFB 2MiB Encrypt",
   runs,
   func(b) {
-    const cipher = new BlowfishCfb(key, iv);
+    const cipher = new Cfb(Blowfish, key, iv);
 
     b.start();
     cipher.encrypt(data);
@@ -75,7 +82,7 @@ bench({
   name: "Blowfish-CFB 2MiB Decrypt",
   runs,
   func(b) {
-    const bf = new BlowfishCfb(key, iv);
+    const bf = new Cfb(Blowfish, key, iv);
     b.start();
     bf.decrypt(data);
     b.stop();
@@ -87,7 +94,7 @@ bench({
   name: "Blowfish-OFB 2MiB Encrypt/Decrypt",
   runs,
   func(b) {
-    const cipher = new BlowfishOfb(key, iv);
+    const cipher = new Ofb(Blowfish, key, iv);
 
     b.start();
     cipher.encrypt(data);

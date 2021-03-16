@@ -1,2 +1,2 @@
-export { AesCbc, AesCfb, AesEcb, AesOfb } from "./src/aes/mod.ts";
-export { Padding } from "./src/utils/padding.ts";
+export { Aes } from "./src/aes/mod.ts";
+export type { BlockCipher } from "./src/block-modes/mod.ts";

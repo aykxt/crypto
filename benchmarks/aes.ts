@@ -1,5 +1,6 @@
 import { bench, runBenchmarks } from "../dev_deps.ts";
-import { AesCbc, AesCfb, AesEcb, AesOfb } from "../src/aes/mod.ts";
+import { Aes } from "../aes.ts";
+import { Cbc, Cfb, Ecb, Ofb } from "../block-modes.ts";
 import { AES as GodCryptoAES } from "https://deno.land/x/god_crypto@v1.4.9/aes.ts";
 import { args } from "./utils/benchmarkArgs.ts";
 
@@ -15,7 +16,7 @@ bench({
   name: "AES-128-ECB 2MiB Encrypt",
   runs,
   func(b) {
-    const cipher = new AesEcb(key);
+    const cipher = new Ecb(Aes, key);
     b.start();
     cipher.encrypt(data);
     b.stop();
@@ -26,7 +27,7 @@ bench({
   name: "AES-128-ECB 2MiB Decrypt",
   runs,
   func(b) {
-    const cipher = new AesEcb(key);
+    const cipher = new Ecb(Aes, key);
     b.start();
     cipher.decrypt(data);
     b.stop();
@@ -37,7 +38,7 @@ bench({
   name: "AES-128-CBC 2MiB Encrypt",
   runs,
   func(b) {
-    const cipher = new AesCbc(key, iv);
+    const cipher = new Cbc(Aes, key, iv);
     b.start();
     cipher.encrypt(data);
     b.stop();
@@ -48,7 +49,7 @@ bench({
   name: "AES-128-CBC 2MiB Decrypt",
   runs,
   func(b) {
-    const cipher = new AesCbc(key, iv);
+    const cipher = new Cbc(Aes, key, iv);
     b.start();
     cipher.decrypt(data);
     b.stop();
@@ -59,7 +60,7 @@ bench({
   name: "AES-128-CFB 2MiB Encrypt",
   runs,
   func(b) {
-    const cipher = new AesCfb(key, iv);
+    const cipher = new Cfb(Aes, key, iv);
     b.start();
     cipher.encrypt(data);
     b.stop();
@@ -70,7 +71,7 @@ bench({
   name: "AES-128-CFB 2MiB Decrypt",
   runs,
   func(b) {
-    const cipher = new AesCfb(key, iv);
+    const cipher = new Cfb(Aes, key, iv);
     b.start();
     cipher.decrypt(data);
     b.stop();
@@ -78,23 +79,12 @@ bench({
 });
 
 bench({
-  name: "AES-128-OFB 2MiB Encrypt",
+  name: "AES-128-OFB 2MiB Encrypt/Decrypt",
   runs,
   func(b) {
-    const cipher = new AesOfb(key, iv);
+    const cipher = new Ofb(Aes, key, iv);
     b.start();
     cipher.encrypt(data);
-    b.stop();
-  },
-});
-
-bench({
-  name: "AES-128-OFB 2MiB Decrypt",
-  runs,
-  func(b) {
-    const cipher = new AesOfb(key, iv);
-    b.start();
-    cipher.decrypt(data);
     b.stop();
   },
 });

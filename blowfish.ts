@@ -1,7 +1,2 @@
-export {
-  BlowfishCbc,
-  BlowfishCfb,
-  BlowfishEcb,
-  BlowfishOfb,
-} from "./src/blowfish/mod.ts";
-export { Padding } from "./src/utils/padding.ts";
+export { Blowfish } from "./src/blowfish/mod.ts";
+export type { BlockCipher } from "./src/block-modes/mod.ts";
