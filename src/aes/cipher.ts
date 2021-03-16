@@ -28,9 +28,10 @@ export class AesEcb implements BlockCipher {
     data = pad(data, this.padding, AES.BLOCK_SIZE);
 
     const encrypted = data.slice();
+    const encryptedView = new DataView(encrypted.buffer);
 
-    for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
-      this.#aes.encrypt(encrypted.subarray(i, i + AES.BLOCK_SIZE));
+    for (let i = 0; i < encrypted.length; i += AES.BLOCK_SIZE) {
+      this.#aes.encrypt(encryptedView, i);
     }
 
     return encrypted;
@@ -40,9 +41,10 @@ export class AesEcb implements BlockCipher {
     checkBlockSize(data.length);
 
     const decrypted = data.slice();
+    const decryptedView = new DataView(decrypted.buffer);
 
-    for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
-      this.#aes.decrypt(decrypted.subarray(i, i + AES.BLOCK_SIZE));
+    for (let i = 0; i < decrypted.length; i += AES.BLOCK_SIZE) {
+      this.#aes.decrypt(decryptedView, i);
     }
 
     return unpad(decrypted, this.padding, AES.BLOCK_SIZE);
@@ -51,7 +53,7 @@ export class AesEcb implements BlockCipher {
 
 export class AesCbc implements BlockCipher {
   #aes: AES;
-  #prev: Uint8Array;
+  #prev: DataView;
 
   constructor(
     key: Uint8Array,
@@ -60,7 +62,8 @@ export class AesCbc implements BlockCipher {
   ) {
     checkIvSize(iv.length);
 
-    this.#prev = iv.slice();
+    this.#prev = new DataView(iv.buffer.slice(iv.byteOffset, iv.byteLength));
+
     this.#aes = new AES(key);
   }
 
@@ -68,46 +71,77 @@ export class AesCbc implements BlockCipher {
     data = pad(data, this.padding, AES.BLOCK_SIZE);
 
     const encrypted = data.slice();
+    const encryptedView = new DataView(encrypted.buffer);
 
-    for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
-      const block = encrypted.subarray(i, i + AES.BLOCK_SIZE);
+    for (let i = 0; i < encrypted.length; i += AES.BLOCK_SIZE) {
+      encryptedView.setUint32(
+        i,
+        encryptedView.getUint32(i) ^ this.#prev.getUint32(0),
+      );
+      encryptedView.setUint32(
+        i + 4,
+        encryptedView.getUint32(i + 4) ^ this.#prev.getUint32(4),
+      );
+      encryptedView.setUint32(
+        i + 8,
+        encryptedView.getUint32(i + 8) ^ this.#prev.getUint32(8),
+      );
+      encryptedView.setUint32(
+        i + 12,
+        encryptedView.getUint32(i + 12) ^ this.#prev.getUint32(12),
+      );
 
-      for (let j = 0; j < AES.BLOCK_SIZE; j++) {
-        block[j] ^= this.#prev[j];
-      }
+      this.#aes.encrypt(encryptedView, i);
 
-      this.#aes.encrypt(block);
-      this.#prev = block;
+      this.#prev.setUint32(0, encryptedView.getUint32(i));
+      this.#prev.setUint32(4, encryptedView.getUint32(i + 4));
+      this.#prev.setUint32(8, encryptedView.getUint32(i + 8));
+      this.#prev.setUint32(12, encryptedView.getUint32(i + 12));
     }
 
-    this.#prev = this.#prev.slice();
     return encrypted;
   }
 
   decrypt(data: Uint8Array): Uint8Array {
     checkBlockSize(data.length);
 
+    const view = new DataView(data.buffer);
     const decrypted = data.slice();
+    const decryptedView = new DataView(decrypted.buffer);
 
-    for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
-      const block = decrypted.subarray(i, i + AES.BLOCK_SIZE);
-      this.#aes.decrypt(block);
+    for (let i = 0; i < decrypted.length; i += AES.BLOCK_SIZE) {
+      this.#aes.decrypt(decryptedView, i);
 
-      for (let j = 0; j < AES.BLOCK_SIZE; j++) {
-        block[j] ^= this.#prev[j];
-      }
+      decryptedView.setUint32(
+        i,
+        decryptedView.getUint32(i) ^ this.#prev.getUint32(0),
+      );
+      decryptedView.setUint32(
+        i + 4,
+        decryptedView.getUint32(i + 4) ^ this.#prev.getUint32(4),
+      );
+      decryptedView.setUint32(
+        i + 8,
+        decryptedView.getUint32(i + 8) ^ this.#prev.getUint32(8),
+      );
+      decryptedView.setUint32(
+        i + 12,
+        decryptedView.getUint32(i + 12) ^ this.#prev.getUint32(12),
+      );
 
-      this.#prev = data.subarray(i, i + AES.BLOCK_SIZE);
+      this.#prev.setUint32(0, view.getUint32(i));
+      this.#prev.setUint32(4, view.getUint32(i + 4));
+      this.#prev.setUint32(8, view.getUint32(i + 8));
+      this.#prev.setUint32(12, view.getUint32(i + 12));
     }
 
-    this.#prev = this.#prev.slice();
     return unpad(decrypted, this.padding, AES.BLOCK_SIZE);
   }
 }
 
 export class AesCfb implements BlockCipher {
   #aes: AES;
-  #prev: Uint8Array;
+  #prev: DataView;
 
   constructor(
     key: Uint8Array,
@@ -116,23 +150,41 @@ export class AesCfb implements BlockCipher {
   ) {
     checkIvSize(iv.length);
 
-    this.#prev = iv.slice();
+    this.#prev = new DataView(iv.buffer.slice(0));
     this.#aes = new AES(key);
   }
 
   encrypt(data: Uint8Array): Uint8Array {
     data = pad(data, this.padding, AES.BLOCK_SIZE);
 
+    const view = new DataView(data.buffer);
     const encrypted = new Uint8Array(data.length);
+    const encryptedView = new DataView(encrypted.buffer);
 
     for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
-      this.#aes.encrypt(this.#prev);
+      this.#aes.encrypt(this.#prev, 0);
 
-      for (let j = 0; j < AES.BLOCK_SIZE; j++) {
-        encrypted[i + j] = this.#prev[j] ^ data[i + j];
-      }
+      encryptedView.setUint32(
+        i,
+        this.#prev.getUint32(0) ^ view.getUint32(i),
+      );
+      encryptedView.setUint32(
+        i + 4,
+        this.#prev.getUint32(4) ^ view.getUint32(i + 4),
+      );
+      encryptedView.setUint32(
+        i + 8,
+        this.#prev.getUint32(8) ^ view.getUint32(i + 8),
+      );
+      encryptedView.setUint32(
+        i + 12,
+        this.#prev.getUint32(12) ^ view.getUint32(i + 12),
+      );
 
-      this.#prev = encrypted.slice(i, i + AES.BLOCK_SIZE);
+      this.#prev.setUint32(0, encryptedView.getUint32(i));
+      this.#prev.setUint32(4, encryptedView.getUint32(i + 4));
+      this.#prev.setUint32(8, encryptedView.getUint32(i + 8));
+      this.#prev.setUint32(12, encryptedView.getUint32(i + 12));
     }
 
     return encrypted;
@@ -141,26 +193,42 @@ export class AesCfb implements BlockCipher {
   decrypt(data: Uint8Array): Uint8Array {
     checkBlockSize(data.length);
 
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
     const decrypted = new Uint8Array(data.length);
+    const decryptedView = new DataView(decrypted.buffer);
 
-    for (let i = 0; i < data.length; i += 16) {
-      this.#aes.encrypt(this.#prev);
+    for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
+      this.#aes.encrypt(this.#prev, 0);
 
-      for (let j = 0; j < 16; j++) {
-        decrypted[i + j] = this.#prev[j] ^ data[i + j];
-      }
+      decryptedView.setUint32(
+        i,
+        this.#prev.getUint32(0) ^ view.getUint32(i),
+      );
+      decryptedView.setUint32(
+        i + 4,
+        this.#prev.getUint32(4) ^ view.getUint32(i + 4),
+      );
+      decryptedView.setUint32(
+        i + 8,
+        this.#prev.getUint32(8) ^ view.getUint32(i + 8),
+      );
+      decryptedView.setUint32(
+        i + 12,
+        this.#prev.getUint32(12) ^ view.getUint32(i + 12),
+      );
 
-      this.#prev = data.subarray(i, i + 16);
+      this.#prev.setUint32(0, view.getUint32(i));
+      this.#prev.setUint32(4, view.getUint32(i + 4));
+      this.#prev.setUint32(8, view.getUint32(i + 8));
+      this.#prev.setUint32(12, view.getUint32(i + 12));
     }
-
-    this.#prev = this.#prev.slice();
     return unpad(decrypted, this.padding, AES.BLOCK_SIZE);
   }
 }
 
 export class AesOfb implements BlockCipher {
   #aes: AES;
-  #prev: Uint8Array;
+  #prev: DataView;
 
   constructor(
     key: Uint8Array,
@@ -168,19 +236,33 @@ export class AesOfb implements BlockCipher {
   ) {
     checkIvSize(iv.length);
 
-    this.#prev = iv.slice();
+    this.#prev = new DataView(iv.buffer.slice(0));
     this.#aes = new AES(key);
   }
 
   encrypt(data: Uint8Array): Uint8Array {
     const encrypted = data.slice();
+    const encryptedView = new DataView(encrypted.buffer);
 
     for (let i = 0; i < data.length; i += AES.BLOCK_SIZE) {
-      this.#aes.encrypt(this.#prev);
+      this.#aes.encrypt(this.#prev, 0);
 
-      for (let j = 0; j < AES.BLOCK_SIZE; j++) {
-        encrypted[i + j] ^= this.#prev[j];
-      }
+      encryptedView.setUint32(
+        i,
+        encryptedView.getUint32(i) ^ this.#prev.getUint32(0),
+      );
+      encryptedView.setUint32(
+        i + 4,
+        encryptedView.getUint32(i + 4) ^ this.#prev.getUint32(4),
+      );
+      encryptedView.setUint32(
+        i + 8,
+        encryptedView.getUint32(i + 8) ^ this.#prev.getUint32(8),
+      );
+      encryptedView.setUint32(
+        i + 12,
+        encryptedView.getUint32(i + 12) ^ this.#prev.getUint32(12),
+      );
     }
 
     return encrypted;

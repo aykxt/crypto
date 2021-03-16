@@ -1,13 +1,15 @@
-export const S = new Uint8Array(256);
-export const SI = new Uint8Array(256);
-export const T1 = new Uint32Array(256);
-export const T2 = new Uint32Array(256);
-export const T3 = new Uint32Array(256);
-export const T4 = new Uint32Array(256);
-export const T5 = new Uint32Array(256);
-export const T6 = new Uint32Array(256);
-export const T7 = new Uint32Array(256);
-export const T8 = new Uint32Array(256);
+const buffer = new ArrayBuffer(8704);
+
+export const S = new Uint8Array(buffer, 0, 256);
+export const SI = new Uint8Array(buffer, 256, 256);
+export const T1 = new Uint32Array(buffer, 512, 256);
+export const T2 = new Uint32Array(buffer, 1536, 256);
+export const T3 = new Uint32Array(buffer, 2560, 256);
+export const T4 = new Uint32Array(buffer, 3584, 256);
+export const T5 = new Uint32Array(buffer, 4608, 256);
+export const T6 = new Uint32Array(buffer, 5632, 256);
+export const T7 = new Uint32Array(buffer, 6656, 256);
+export const T8 = new Uint32Array(buffer, 7680, 256);
 
 const d = new Uint8Array(256);
 const t = new Uint8Array(256);

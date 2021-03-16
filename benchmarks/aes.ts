@@ -78,7 +78,7 @@ bench({
 });
 
 bench({
-  name: "AES-128-CFB 2MiB Encrypt",
+  name: "AES-128-OFB 2MiB Encrypt",
   runs,
   func(b) {
     const cipher = new AesOfb(key, iv);
@@ -89,7 +89,7 @@ bench({
 });
 
 bench({
-  name: "AES-128-CFB 2MiB Decrypt",
+  name: "AES-128-OFB 2MiB Decrypt",
   runs,
   func(b) {
     const cipher = new AesOfb(key, iv);
