@@ -1,6 +1,6 @@
 import { assertEquals, assertThrows } from "../dev_deps.ts";
 import { Aes } from "../aes.ts";
-import { Cbc, Cfb, Ecb, Ofb } from "../block-modes.ts";
+import { Cbc, Cfb, Ctr, Ecb, Ofb } from "../block-modes.ts";
 
 // deno-fmt-ignore
 const iv = new Uint8Array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
@@ -89,6 +89,22 @@ Deno.test("AES-128-OFB ", () => {
 
   const cipher = new Ofb(Aes, key, iv);
   const decipher = new Ofb(Aes, key, iv);
+
+  const enc = cipher.encrypt(original);
+  const dec = decipher.decrypt(enc);
+
+  assertEquals(dec, original);
+});
+
+Deno.test("AES-128-CTR ", () => {
+  // deno-fmt-ignore
+  const key = new Uint8Array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
+  const iv = new Uint8Array(16);
+
+  const original = new Uint8Array(32);
+
+  const cipher = new Ctr(Aes, key, iv);
+  const decipher = new Ctr(Aes, key, iv);
 
   const enc = cipher.encrypt(original);
   const dec = decipher.decrypt(enc);
