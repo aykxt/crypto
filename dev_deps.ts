@@ -7,4 +7,7 @@ export {
   assertThrows,
 } from "https://deno.land/std@0.91.0/testing/asserts.ts";
 export { parse as parseArgs } from "https://deno.land/std@0.91.0/flags/mod.ts";
-export { encodeToString as encodeToHex } from "https://deno.land/x/std@0.91.0/encoding/hex.ts";
+export {
+  decodeString as decodeHex,
+  encodeToString as encodeToHex,
+} from "https://deno.land/x/std@0.91.0/encoding/hex.ts";

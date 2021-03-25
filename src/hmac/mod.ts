@@ -2,7 +2,7 @@ import { createHash, SupportedAlgorithm } from "../../deps.ts";
 
 export type { SupportedAlgorithm } from "../../deps.ts";
 
-const blockSizes: Record<SupportedAlgorithm, number> = {
+export const blockSizes: Record<SupportedAlgorithm, number> = {
   "sha3-512": 72,
   "sha3-384": 48,
   "sha3-256": 136,
@@ -23,6 +23,30 @@ const blockSizes: Record<SupportedAlgorithm, number> = {
   keccak224: 144,
 };
 
+export const outputSizes: Record<SupportedAlgorithm, number> = {
+  "sha3-512": 64,
+  "sha3-384": 48,
+  "sha3-256": 32,
+  "sha3-224": 28,
+  sha512: 64,
+  sha384: 48,
+  sha256: 32,
+  sha224: 28,
+  sha1: 20,
+  md5: 16,
+  md4: 16,
+  md2: 16,
+  ripemd320: 40,
+  ripemd160: 20,
+  keccak512: 64,
+  keccak384: 48,
+  keccak256: 32,
+  keccak224: 28,
+};
+
+/**
+ * RFC 2104 Keyed Hash Message Authentication Code (HMAC)
+ */
 export function hmac(
   hash: SupportedAlgorithm,
   key: Uint8Array,

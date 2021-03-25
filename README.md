@@ -1,36 +1,65 @@
-# Crypto
+# 🔐 Crypto
 
 ![ci](https://github.com/aykxt/crypto/workflows/ci/badge.svg)
 
-A collection of useful crypto algorithms written in Typescript.
+A collection of useful cryptographic algorithms written in Typescript.
+
+---
 
 > ⚠ This project is still in an early stage of development. Expect **breaking
 > changes**.
 
+---
+
 ## Supported algorithms
 
-### Block ciphers
+### [Block ciphers]
 
-- AES (Advanced Encryption Standard)
-- Blowfish
-- ECB, CBC, CFB, OFB and CTR block modes
+- [AES] (Rijndael)
+- [Blowfish]
+- ECB, CBC, CFB, OFB and CTR [block modes]
+
+### [Message Authentication Code] algorithms (MACs)
+
+- [HMAC]
+
+### [Key Derivation Functions] (KDFs)
+
+- [HKDF]
 
 ## Examples
 
+#### AES-128-CBC
+
 ```ts
 import { Aes } from "https://deno.land/x/crypto/aes.ts";
-import { Ecb } from "https://deno.land/x/crypto/block-modes.ts";
-import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
+import { Cbc, Padding } from "https://deno.land/x/crypto/block-modes.ts";
 
-//deno-fmt-ignore
-const key = new Uint8Array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
+const te = new TextEncoder();
 
-const cipher = new Ecb(Aes, key);
+const key = te.encode("SuperDuperSecret");
+const data = te.encode("DataToBeEncrypted");
+const iv = new Uint8Array(16);
 
-//deno-fmt-ignore
-const data = new Uint8Array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
+// Ciphers have an internal state, you should therefore create
+// separate ciphers for encryption and decryption
+const cipher = new Cbc(Aes, key, iv, Padding.PKCS7);
+const decipher = new Cbc(Aes, key, iv, Padding.PKCS7);
 
 const encrypted = cipher.encrypt(data);
-
-assertEquals(cipher.decrypt(encrypted), data);
+const decrypted = decipher.decrypt(encrypted);
 ```
+
+### Disclaimer
+
+This repository has not yet received any formal cryptographic and security
+reviews. **USE AT YOUR OWN RISK**
+
+[Block ciphers]: https://en.wikipedia.org/wiki/Block_cipher
+[block modes]: https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation
+[AES]: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
+[Blowfish]: https://en.wikipedia.org/wiki/Blowfish_(cipher)
+[Message Authentication Code]: https://en.wikipedia.org/wiki/Message_authentication_code
+[HMAC]: https://en.wikipedia.org/wiki/HMAC
+[Key Derivation Functions]: https://en.wikipedia.org/wiki/Key_derivation_function
+[HKDF]: https://en.wikipedia.org/wiki/HKDF
