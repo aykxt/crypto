@@ -28,7 +28,7 @@ export function hkdf(
     const concat = new Uint8Array(t.length + info.length + 1);
     concat.set(t);
     concat.set(info, t.length);
-    concat.set([i + 1], t.length + info.length);
+    concat[t.length + info.length] = i + 1;
     t = hmac(hash, prk, concat);
     okm.set(t, hashLen * i);
   }

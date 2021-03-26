@@ -26,6 +26,7 @@ A collection of useful cryptographic algorithms written in Typescript.
 ### [Key Derivation Functions] (KDFs)
 
 - [HKDF]
+- [PBKDF2]
 
 ## Examples
 
@@ -63,3 +64,4 @@ reviews. **USE AT YOUR OWN RISK**
 [HMAC]: https://en.wikipedia.org/wiki/HMAC
 [Key Derivation Functions]: https://en.wikipedia.org/wiki/Key_derivation_function
 [HKDF]: https://en.wikipedia.org/wiki/HKDF
+[PBKDF2]: https://en.wikipedia.org/wiki/PBKDF2
