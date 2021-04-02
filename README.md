@@ -1,23 +1,21 @@
-# 🔐 Crypto
-
-![ci](https://github.com/aykxt/crypto/workflows/ci/badge.svg)
-
-A collection of useful cryptographic algorithms written in Typescript.
+<h1 align="center">🔐 Deno Crypto</h1>
+<p align="center"><img src="https://github.com/aykxt/crypto/workflows/ci/badge.svg" /></p>
+<p align="center">A collection of useful cryptographic algorithms written in Typescript.</p>
 
 ---
 
-> ⚠ This project is still in an early stage of development. Expect **breaking
+> 🧪 **This project is still in an early stage of development. Expect breaking
 > changes**.
 
 ---
 
-## Supported algorithms
+## ✔ Supported algorithms
 
 ### [Block ciphers]
 
 - [AES] (Rijndael)
 - [Blowfish]
-- [CAST5]
+- [CAST5] (CAST-128)
 - ECB, CBC, CFB, OFB and CTR [block modes]
 
 ### [Message Authentication Code] algorithms (MACs)
@@ -29,7 +27,7 @@ A collection of useful cryptographic algorithms written in Typescript.
 - [HKDF]
 - [PBKDF2]
 
-## Examples
+## 📝 Examples
 
 #### AES-128-CBC
 
@@ -52,7 +50,7 @@ const encrypted = cipher.encrypt(data);
 const decrypted = decipher.decrypt(encrypted);
 ```
 
-### Disclaimer
+## 🔔 Disclaimer
 
 This repository has not yet received any formal cryptographic and security
 reviews. **USE AT YOUR OWN RISK**
