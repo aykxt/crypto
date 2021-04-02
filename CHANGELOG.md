@@ -1,3 +1,10 @@
+# [0.9.0](https://github.com/aykxt/crypto/compare/v0.8.0...0.9.0) (2021-04-02)
+
+### Features
+
+- **Block ciphers:** add CAST5 algorithm
+  ([840c419](https://github.com/aykxt/crypto/commit/840c41963dbae0c59aa51f1529dae7720804d49c))
+
 # [0.8.0](https://github.com/aykxt/crypto/compare/v0.7.0...v0.8.0) (2021-03-26)
 
 ### Features
