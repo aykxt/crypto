@@ -5,7 +5,7 @@ import { BlockCipher } from "../block-modes/base.ts";
  * Advanced Encryption Standard (AES) block cipher.
  * 
  * Note: This is a low level class. Use a block cipher mode to
- * encrypt and decrypt data
+ * encrypt and decrypt data.
  */
 export class Aes implements BlockCipher {
   /**
@@ -42,7 +42,7 @@ export class Aes implements BlockCipher {
           S[(tmp >> 8) & 0xff] << 8 ^ S[tmp & 0xff];
 
         if (i % keyLen === 0) {
-          tmp = tmp << 8 ^ tmp >>> 24 ^ (rcon << 24);
+          tmp = tmp << 8 ^ tmp >>> 24 ^ rcon << 24;
           rcon = rcon << 1 ^ (rcon >> 7) * 0x11b;
         }
       }
@@ -55,12 +55,10 @@ export class Aes implements BlockCipher {
       if (i <= 4 || j < 4) {
         this.#kd[j] = tmp;
       } else {
-        this.#kd[j] = (
-          T5[S[tmp >>> 24]] ^
+        this.#kd[j] = T5[S[tmp >>> 24]] ^
           T6[S[(tmp >> 16) & 0xff]] ^
           T7[S[(tmp >> 8) & 0xff]] ^
-          T8[S[tmp & 0xff]]
-        );
+          T8[S[tmp & 0xff]];
       }
     }
   }
