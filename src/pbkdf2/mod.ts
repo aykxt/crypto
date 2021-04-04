@@ -10,20 +10,18 @@ export function pbkdf2(
   password: Uint8Array,
   salt: Uint8Array,
   iterations: number,
-  keylen: number,
+  keyLen: number,
 ): Uint8Array {
-  const dk = new Uint8Array(keylen);
-
   const salti = new Uint8Array(salt.length + 4);
   const saltiView = new DataView(salti.buffer);
   salti.set(salt);
 
   const hashLen = outputSizes[hash];
-  const len = Math.ceil(keylen / hashLen);
-
-  for (let i = 1, offset = 0; i <= len; i++, offset += hashLen) {
+  const len = Math.ceil(keyLen / hashLen);
+  const dk = new Uint8Array(len * hashLen);
+  let offset = 0;
+  for (let i = 1; i <= len; i++) {
     saltiView.setUint32(salt.length, i);
-
     const t = hmac(hash, password, salti);
     let u = t;
 
@@ -33,7 +31,8 @@ export function pbkdf2(
     }
 
     dk.set(t, offset);
+    offset += hashLen;
   }
 
-  return dk;
+  return dk.slice(0, keyLen);
 }
