@@ -1,7 +1,7 @@
 import { assertEquals, assertThrows } from "../dev_deps.ts";
 import { pad, Padding, unpad } from "../src/utils/padding.ts";
 
-Deno.test("PKCS#7 padding", () => {
+Deno.test("[Padding] PKCS#7", () => {
   const mode = Padding.PKCS7;
 
   const original = new Uint8Array([1, 2, 3, 4, 5, 6, 7]);
@@ -14,7 +14,7 @@ Deno.test("PKCS#7 padding", () => {
   assertEquals(unpad(padded, mode, 16), original);
 });
 
-Deno.test("Zero padding", () => {
+Deno.test("[Padding] Zero", () => {
   const mode = Padding.NULL;
 
   const original = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9]);
@@ -27,7 +27,7 @@ Deno.test("Zero padding", () => {
   assertEquals(unpad(padded, mode, 8), original);
 });
 
-Deno.test("Spaces padding", () => {
+Deno.test("[Padding] Spaces", () => {
   const mode = Padding.SPACES;
 
   const original = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9]);
@@ -40,7 +40,7 @@ Deno.test("Spaces padding", () => {
   assertEquals(unpad(padded, mode, 8), original);
 });
 
-Deno.test("ANSI X9.23 padding", () => {
+Deno.test("[Padding] ANSI X9.23 padding", () => {
   const mode = Padding.LAST_BYTE;
 
   const original = new Uint8Array(
@@ -55,7 +55,7 @@ Deno.test("ANSI X9.23 padding", () => {
   assertEquals(unpad(padded, mode, 8), original);
 });
 
-Deno.test("ISO/IEC 7816-4 padding", () => {
+Deno.test("[Padding] ISO/IEC 7816-4", () => {
   const mode = Padding.ONE_AND_ZEROS;
 
   const original = new Uint8Array(
@@ -70,7 +70,7 @@ Deno.test("ISO/IEC 7816-4 padding", () => {
   assertEquals(unpad(padded, mode, 8), original);
 });
 
-Deno.test("No padding", () => {
+Deno.test("[Padding] No padding", () => {
   const mode = Padding.NONE;
 
   const original = new Uint8Array([97, 98, 99, 100, 101, 102, 103, 104]);
