@@ -1,4 +1,11 @@
-# [0.9.0](https://github.com/aykxt/crypto/compare/v0.8.0...0.9.0) (2021-04-02)
+# [0.9.1](https://github.com/aykxt/crypto/compare/v0.9.0...v0.9.1) (2021-04-04)
+
+### Bug Fixes
+
+- **pbkdf2:** fix offset out of bounds
+  ([1377a73](https://github.com/aykxt/crypto/commit/1377a739fa80b2b26907616684e65c2bc124d220))
+
+# [0.9.0](https://github.com/aykxt/crypto/compare/v0.8.0...v0.9.0) (2021-04-02)
 
 ### Features
 
