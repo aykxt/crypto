@@ -3,6 +3,7 @@ import { args } from "./utils/benchmarkArgs.ts";
 import "./aes.ts";
 import "./blowfish.ts";
 import "./cast5.ts";
+import "./des.ts";
 
 const { runs: _, ...opts } = args;
 

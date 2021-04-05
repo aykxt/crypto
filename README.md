@@ -20,6 +20,7 @@
 - [AES] (Rijndael)
 - [Blowfish]
 - [CAST5] (CAST-128)
+- [DES]
 - ECB, CBC, CFB, OFB and CTR [block modes]
 
 ### [Message Authentication Code] algorithms (MACs)
@@ -64,6 +65,7 @@ reviews. **USE AT YOUR OWN RISK**
 [AES]: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
 [Blowfish]: https://en.wikipedia.org/wiki/Blowfish_(cipher)
 [CAST5]: https://en.wikipedia.org/wiki/CAST-128
+[DES]: https://en.wikipedia.org/wiki/Data_Encryption_Standard
 [Message Authentication Code]: https://en.wikipedia.org/wiki/Message_authentication_code
 [HMAC]: https://en.wikipedia.org/wiki/HMAC
 [Key Derivation Functions]: https://en.wikipedia.org/wiki/Key_derivation_function
