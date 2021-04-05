@@ -21,6 +21,7 @@
 - [Blowfish]
 - [CAST5] (CAST-128)
 - [DES]
+- [3DES]
 - ECB, CBC, CFB, OFB and CTR [block modes]
 
 ### [Message Authentication Code] algorithms (MACs)
@@ -66,6 +67,7 @@ reviews. **USE AT YOUR OWN RISK**
 [Blowfish]: https://en.wikipedia.org/wiki/Blowfish_(cipher)
 [CAST5]: https://en.wikipedia.org/wiki/CAST-128
 [DES]: https://en.wikipedia.org/wiki/Data_Encryption_Standard
+[3DES]: https://en.wikipedia.org/wiki/Triple_DES
 [Message Authentication Code]: https://en.wikipedia.org/wiki/Message_authentication_code
 [HMAC]: https://en.wikipedia.org/wiki/HMAC
 [Key Derivation Functions]: https://en.wikipedia.org/wiki/Key_derivation_function

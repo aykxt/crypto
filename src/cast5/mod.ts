@@ -1,5 +1,5 @@
 import { S1, S2, S3, S4, S5, S6, S7, S8 } from "./consts.ts";
-import { BlockCipher } from "../block-modes/mod.ts";
+import { BlockCipher } from "../block-modes/base.ts";
 
 /**
  * CAST5 block cipher.
@@ -21,7 +21,7 @@ export class Cast5 implements BlockCipher {
   constructor(key: Uint8Array) {
     if (key.length < 5 || key.length > 16) {
       throw new Error(
-        "Invalid key size (must be between 5 bytes to 16 bytes long)",
+        "Invalid key size (must be between 5 and 16 bytes)",
       );
     }
 
