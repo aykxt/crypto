@@ -1,3 +1,12 @@
+# [0.10.0](https://github.com/aykxt/crypto/compare/v0.9.1...v0.10.0) (2021-04-05)
+
+### Features
+
+- **block-ciphers:** add 3DES algorithm
+  ([c0877ae](https://github.com/aykxt/crypto/commit/c0877aebe586b3d4047ea69c3d434ea414bcd2c5))
+- **block-ciphers:** add DES algorithm
+  ([15d408e](https://github.com/aykxt/crypto/commit/15d408eb7b2c753fecaab48926499af6717af530))
+
 # [0.9.1](https://github.com/aykxt/crypto/compare/v0.9.0...v0.9.1) (2021-04-04)
 
 ### Bug Fixes
