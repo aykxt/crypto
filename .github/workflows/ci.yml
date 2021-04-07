@@ -29,3 +29,15 @@ jobs:
 
       - name: Run Tests
         run: deno test
+
+      - name: Create coverage report
+        if: matrix.deno == 'v1.x'
+        run: |
+          deno test --unstable --coverage=.coverage
+          deno --unstable coverage ./.coverage --lcov > coverage.lcov
+
+      - name: Upload coverage report
+        if: matrix.deno == 'v1.x'
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.lcov
