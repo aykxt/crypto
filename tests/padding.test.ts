@@ -27,6 +27,16 @@ Deno.test("[Padding] Zero", () => {
   assertEquals(unpad(padded, mode, 8), original);
 });
 
+Deno.test("[Padding] Zero (equals block size)", () => {
+  const mode = Padding.NULL;
+
+  const original = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+  const padded = pad(original, mode, 8);
+
+  assertEquals(padded, original);
+  assertEquals(unpad(padded, mode, 8), original);
+});
+
 Deno.test("[Padding] Spaces", () => {
   const mode = Padding.SPACES;
 
@@ -84,6 +94,6 @@ Deno.test("[Padding] No padding", () => {
       pad(new Uint8Array(17), mode, 16);
     },
     Error,
-    "Incorrect block size (must be 16 bytes long)",
+    "Invalid data size (must be multiple of 16 bytes)",
   );
 });

@@ -17,7 +17,7 @@ export class Des implements BlockCipher {
 
   constructor(key: Uint8Array) {
     if (key.length != 8) {
-      throw new Error("Invalid key length (must be 8 bytes)");
+      throw new Error("Invalid key size (must be 8 bytes)");
     }
     const keyV = new DataView(key.buffer, key.byteOffset, key.byteLength);
     let l = keyV.getUint32(0);

@@ -50,4 +50,20 @@ Deno.test("[Block Cipher] Blowfish", () => {
     bf.decryptBlock(dataView, 0);
     assertEquals(data, decodeHex(plaintext));
   }
+
+  assertThrows(
+    () => {
+      new Blowfish(new Uint8Array(2));
+    },
+    Error,
+    "Invalid key size (must be between 4 and 56 bytes)",
+  );
+
+  assertThrows(
+    () => {
+      new Blowfish(new Uint8Array(64));
+    },
+    Error,
+    "Invalid key size (must be between 4 and 56 bytes)",
+  );
 });

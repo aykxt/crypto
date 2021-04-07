@@ -1,4 +1,4 @@
-import { assertEquals, decodeHex } from "../dev_deps.ts";
+import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
 import { Des } from "../des.ts";
 
 Deno.test("[Block Cipher] DES", () => {
@@ -23,4 +23,12 @@ Deno.test("[Block Cipher] DES", () => {
     des.decryptBlock(dataView, 0);
     assertEquals(data, decodeHex(plaintext));
   }
+
+  assertThrows(
+    () => {
+      new Des(new Uint8Array(16));
+    },
+    Error,
+    "Invalid key size (must be 8 bytes)",
+  );
 });

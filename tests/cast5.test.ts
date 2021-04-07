@@ -1,5 +1,5 @@
 import { Cast5 } from "../cast5.ts";
-import { assertEquals, decodeHex } from "../dev_deps.ts";
+import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
 
 // https://tools.ietf.org/html/rfc2144#appendix-B.1
 
@@ -17,6 +17,22 @@ Deno.test("[Block Cipher] CAST5-128", () => {
 
   cipher.decryptBlock(encryptedView, 0);
   assertEquals(encrypted, plaintext);
+
+  assertThrows(
+    () => {
+      new Cast5(new Uint8Array(4));
+    },
+    Error,
+    "Invalid key size (must be between 5 and 16 bytes)",
+  );
+
+  assertThrows(
+    () => {
+      new Cast5(new Uint8Array(17));
+    },
+    Error,
+    "Invalid key size (must be between 5 and 16 bytes)",
+  );
 });
 
 Deno.test("[Block Cipher] CAST5-80", () => {

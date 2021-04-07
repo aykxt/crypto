@@ -15,7 +15,9 @@ export function pad(
   if (padding === Padding.NONE) {
     if (bytes.length % blockSize === 0) return bytes;
     else {
-      throw new Error(`Incorrect block size (must be ${blockSize} bytes long)`);
+      throw new Error(
+        `Invalid data size (must be multiple of ${blockSize} bytes)`,
+      );
     }
   }
 

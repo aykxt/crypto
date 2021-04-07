@@ -1,4 +1,4 @@
-import { assertEquals, decodeHex } from "../dev_deps.ts";
+import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
 import { TripleDes } from "../tdes.ts";
 
 Deno.test("[Block Cipher] 3DES", () => {
@@ -32,4 +32,12 @@ Deno.test("[Block Cipher] 3DES", () => {
     des.decryptBlock(dataView, 0);
     assertEquals(data, decodeHex(plaintext));
   }
+
+  assertThrows(
+    () => {
+      new TripleDes(new Uint8Array(26));
+    },
+    Error,
+    "Invalid key size (must be either 8, 16 or 24 bytes)",
+  );
 });
