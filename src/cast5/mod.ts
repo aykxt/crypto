@@ -209,23 +209,23 @@ export class Cast5 implements BlockCipher {
     const r = this.#kr[n];
     const t = this.#km[n] + d;
     const i = t << r | t >>> (32 - r);
-    return ((S1[i >>> 24] ^ S2[(i >>> 16) & 0xff]) -
-      S3[(i >>> 8) & 0xff]) + S4[i & 0xff];
+    return ((S1[i >>> 24] ^ S2[i >>> 16 & 0xff]) -
+      S3[i >>> 8 & 0xff]) + S4[i & 0xff];
   }
 
   private f2(d: number, n: number) {
     const r = this.#kr[n];
     const t = this.#km[n] ^ d;
     const i = t << r | t >>> (32 - r);
-    return ((S1[i >>> 24] - S2[(i >>> 16) & 0xff]) +
-      S3[(i >>> 8) & 0xff]) ^ S4[i & 0xff];
+    return ((S1[i >>> 24] - S2[i >>> 16 & 0xff]) +
+      S3[i >>> 8 & 0xff]) ^ S4[i & 0xff];
   }
 
   private f3(d: number, n: number) {
     const r = this.#kr[n];
     const t = this.#km[n] - d;
     const i = t << r | t >>> (32 - r);
-    return ((S1[i >>> 24] + S2[(i >>> 16) & 0xff]) ^
-      S3[(i >>> 8) & 0xff]) - S4[i & 0xff];
+    return ((S1[i >>> 24] + S2[i >>> 16 & 0xff]) ^
+      S3[i >>> 8 & 0xff]) - S4[i & 0xff];
   }
 }
