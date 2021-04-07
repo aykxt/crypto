@@ -1,7 +1,9 @@
 <h1 align="center">🔐 Deno Crypto</h1>
 <p align="center">
 <img src="https://github.com/aykxt/crypto/workflows/ci/badge.svg" />
-<img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fdeno-visualizer.danopia.net%2Fshields%2Fupdates%2Fhttps%2Fdeno.land%2Fx%2Fcrypto%2Fdeps.ts" />
+<a href="https://codecov.io/gh/aykxt/crypto">
+<img src="https://codecov.io/gh/aykxt/crypto/branch/main/graph/badge.svg?token=P2B1SMA3TS"/>
+</a>
 <a href="https://deno.land/x/crypto"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fdeno-visualizer.danopia.net%2Fshields%2Flatest-version%2Fx%2Fcrypto" /></a>
 </p>
 <p align="center">A collection of useful cryptographic algorithms written in Typescript.</p>
