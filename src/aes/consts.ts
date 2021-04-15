@@ -1,46 +1,55 @@
-const buffer = new ArrayBuffer(8704);
+export const S = new DataView(new ArrayBuffer(256));
+export const SI = new DataView(new ArrayBuffer(256));
 
-export const S = new Uint8Array(buffer, 0, 256);
-export const SI = new Uint8Array(buffer, 256, 256);
-export const T1 = new Uint32Array(buffer, 512, 256);
-export const T2 = new Uint32Array(buffer, 1536, 256);
-export const T3 = new Uint32Array(buffer, 2560, 256);
-export const T4 = new Uint32Array(buffer, 3584, 256);
-export const T5 = new Uint32Array(buffer, 4608, 256);
-export const T6 = new Uint32Array(buffer, 5632, 256);
-export const T7 = new Uint32Array(buffer, 6656, 256);
-export const T8 = new Uint32Array(buffer, 7680, 256);
+export const T1 = new DataView(new ArrayBuffer(1024));
+export const T2 = new DataView(new ArrayBuffer(1024));
+export const T3 = new DataView(new ArrayBuffer(1024));
+export const T4 = new DataView(new ArrayBuffer(1024));
+export const T5 = new DataView(new ArrayBuffer(1024));
+export const T6 = new DataView(new ArrayBuffer(1024));
+export const T7 = new DataView(new ArrayBuffer(1024));
+export const T8 = new DataView(new ArrayBuffer(1024));
 
 const d = new Uint8Array(256);
 const t = new Uint8Array(256);
-
-let x2, x4, x8, s, tEnc, tDec, x = 0, xInv = 0;
 
 for (let i = 0; i < 256; i++) {
   d[i] = i << 1 ^ (i >> 7) * 283;
   t[d[i] ^ i] = i;
 }
 
-for (; !S[x]; x ^= x2 || 1) {
+let x2, x4, x8, s, tEnc, tDec, xInv = 0;
+
+for (let x = 0; !S.getUint8(x); x ^= x2 || 1) {
   s = xInv ^ xInv << 1 ^ xInv << 2 ^ xInv << 3 ^ xInv << 4;
   s = s >> 8 ^ s & 255 ^ 99;
 
-  S[x] = s;
-  SI[s] = x;
+  S.setUint8(x, s);
+  SI.setUint8(s, x);
 
   x8 = d[x4 = d[x2 = d[x]]];
   tDec = x8 * 0x1010101 ^ x4 * 0x10001 ^ x2 * 0x101 ^ x * 0x1010100;
   tEnc = d[s] * 0x101 ^ s * 0x1010100;
 
-  T1[x] = tEnc = tEnc << 24 ^ tEnc >>> 8;
-  T2[x] = tEnc = tEnc << 24 ^ tEnc >>> 8;
-  T3[x] = tEnc = tEnc << 24 ^ tEnc >>> 8;
-  T4[x] = tEnc = tEnc << 24 ^ tEnc >>> 8;
+  const i = x * 4;
 
-  T5[s] = tDec = tDec << 24 ^ tDec >>> 8;
-  T6[s] = tDec = tDec << 24 ^ tDec >>> 8;
-  T7[s] = tDec = tDec << 24 ^ tDec >>> 8;
-  T8[s] = tDec = tDec << 24 ^ tDec >>> 8;
+  tEnc = tEnc << 24 ^ tEnc >>> 8;
+  T1.setUint32(i, tEnc);
+  tEnc = tEnc << 24 ^ tEnc >>> 8;
+  T2.setUint32(i, tEnc);
+  tEnc = tEnc << 24 ^ tEnc >>> 8;
+  T3.setUint32(i, tEnc);
+  tEnc = tEnc << 24 ^ tEnc >>> 8;
+  T4.setUint32(i, tEnc);
+
+  tDec = tDec << 24 ^ tDec >>> 8;
+  T5.setUint32(s * 4, tDec);
+  tDec = tDec << 24 ^ tDec >>> 8;
+  T6.setUint32(s * 4, tDec);
+  tDec = tDec << 24 ^ tDec >>> 8;
+  T7.setUint32(s * 4, tDec);
+  tDec = tDec << 24 ^ tDec >>> 8;
+  T8.setUint32(s * 4, tDec);
 
   xInv = t[xInv] || 1;
 }
