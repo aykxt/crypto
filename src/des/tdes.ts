@@ -3,7 +3,7 @@ import { Des } from "./mod.ts";
 
 /**
  * Triple DES (3DES/TDES) block cipher.
- * 
+ *
  * Note: This is a low level class. Use a block cipher mode to
  * encrypt and decrypt data.
  */

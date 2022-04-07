@@ -3,7 +3,7 @@ import { P, S } from "./consts.ts";
 
 /**
  * Blowfish block cipher.
- * 
+ *
  * Note: This is a low level class. Use a block cipher mode to
  * encrypt and decrypt data.
  */

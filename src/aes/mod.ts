@@ -3,7 +3,7 @@ import { BlockCipher } from "../block-modes/base.ts";
 
 /**
  * Advanced Encryption Standard (AES) block cipher.
- * 
+ *
  * Note: This is a low level class. Use a block cipher mode to
  * encrypt and decrypt data.
  */

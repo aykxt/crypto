@@ -2,7 +2,7 @@ import { Padding } from "../utils/padding.ts";
 
 /**
  * This is a low level class. Use a block cipher mode to encrypt and decrypt
- * data 
+ * data
  */
 export interface BlockCipherClass<T extends BlockCipher> {
   /**

@@ -2,7 +2,7 @@ import { pad, Padding, unpad } from "../utils/padding.ts";
 import { BlockCipher, BlockCipherClass, BlockCipherMode } from "./base.ts";
 
 /**
- * Cipher feedback (CFB) mode of operation.  
+ * Cipher feedback (CFB) mode of operation.
  */
 export class Cfb<T extends BlockCipher> extends BlockCipherMode<T> {
   readonly #prev: DataView;

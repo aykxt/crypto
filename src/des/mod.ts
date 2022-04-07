@@ -4,7 +4,7 @@ import { PC2_0, PC2_1, PC2_10, PC2_11, PC2_12, PC2_13, PC2_2, PC2_3, PC2_4, PC2_
 
 /**
  * Data Encryption Standard (DES) block cipher.
- * 
+ *
  * Note: This is a low level class. Use a block cipher mode to
  * encrypt and decrypt data.
  */
