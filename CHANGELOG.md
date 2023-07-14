@@ -1,3 +1,10 @@
+# [0.10.1](https://github.com/aykxt/crypto/compare/v0.10.0...v0.10.1) (2023-07-15)
+
+### Bug Fixes
+
+- **AES:** fix bug causing wrong output sometimes
+  ([315d4f6](https://github.com/aykxt/crypto/commit/315d4f675f412f56c21950eaade0fb1a12a45632))
+
 # [0.10.0](https://github.com/aykxt/crypto/compare/v0.9.1...v0.10.0) (2021-04-05)
 
 ### Features
