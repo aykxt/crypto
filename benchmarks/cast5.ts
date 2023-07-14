@@ -1,106 +1,70 @@
-import { bench, runBenchmarks } from "../dev_deps.ts";
-import { Cast5 } from "../cast5.ts";
 import { Cbc, Cfb, Ctr, Ecb, Ofb } from "../block-modes.ts";
-import { args } from "./utils/benchmarkArgs.ts";
-
-const { runs: _runs, ...opts } = args;
-const runs = _runs || 25;
+import { Cast5 } from "../cast5.ts";
 
 const key = new Uint8Array(16);
 const iv = new Uint8Array(Cast5.BLOCK_SIZE);
 const data = new Uint8Array(1024 * 1024 * 2);
 
-bench({
+Deno.bench({
   name: "CAST5-ECB 2MiB Encrypt",
-  runs,
-  func(b) {
+  fn() {
     const cipher = new Ecb(Cast5, key);
-    b.start();
     cipher.encrypt(data);
-    b.stop();
   },
 });
 
-bench({
+Deno.bench({
   name: "CAST5-ECB 2MiB Decrypt",
-  runs,
-  func(b) {
+  fn() {
     const cipher = new Ecb(Cast5, key);
-    b.start();
     cipher.decrypt(data);
-    b.stop();
   },
 });
 
-bench({
+Deno.bench({
   name: "CAST5-CBC 2MiB Encrypt",
-  runs,
-  func(b) {
+  fn() {
     const cipher = new Cbc(Cast5, key, iv);
-
-    b.start();
     cipher.encrypt(data);
-    b.stop();
   },
 });
 
-bench({
+Deno.bench({
   name: "CAST5-CBC 2MiB Decrypt",
-  runs,
-  func(b) {
-    const bf = new Cbc(Cast5, key, iv);
-    b.start();
-    bf.decrypt(data);
-    b.stop();
-  },
-});
-
-bench({
-  name: "CAST5-CFB 2MiB Encrypt",
-  runs,
-  func(b) {
-    const cipher = new Cfb(Cast5, key, iv);
-
-    b.start();
-    cipher.encrypt(data);
-    b.stop();
-  },
-});
-
-bench({
-  name: "CAST5-CFB 2MiB Decrypt",
-  runs,
-  func(b) {
-    const cipher = new Cfb(Cast5, key, iv);
-    b.start();
+  fn() {
+    const cipher = new Cbc(Cast5, key, iv);
     cipher.decrypt(data);
-    b.stop();
   },
 });
 
-bench({
-  // Encryption and decryption are the same
+Deno.bench({
+  name: "CAST5-CFB 2MiB Encrypt",
+  fn() {
+    const cipher = new Cfb(Cast5, key, iv);
+    cipher.encrypt(data);
+  },
+});
+
+Deno.bench({
+  name: "CAST5-CFB 2MiB Decrypt",
+  fn() {
+    const cipher = new Cfb(Cast5, key, iv);
+    cipher.decrypt(data);
+  },
+});
+
+Deno.bench({
   name: "CAST5-OFB 2MiB Encrypt/Decrypt",
-  runs,
-  func(b) {
+  fn() {
     const cipher = new Ofb(Cast5, key, iv);
-    b.start();
-    cipher.encrypt(data);
-    b.stop();
+    cipher.decrypt(data);
   },
 });
 
-bench({
+Deno.bench({
   name: "CAST5-CTR 2MiB Encrypt/Decrypt",
-  runs,
-  func(b) {
+  fn() {
     const cipher = new Ctr(Cast5, key, iv);
-    b.start();
     cipher.encrypt(data);
-    b.stop();
   },
 });
-
-if (import.meta.main) {
-  runBenchmarks(opts);
-}
