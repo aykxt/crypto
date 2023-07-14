@@ -1,11 +1,11 @@
 export { parse as parseArgs } from "https://deno.land/std@0.194.0/flags/mod.ts";
 export {
   assertEquals,
-  assertThrows
+  assertThrows,
 } from "https://deno.land/std@0.194.0/testing/asserts.ts";
 export {
   bench,
-  runBenchmarks
+  runBenchmarks,
 } from "https://deno.land/std@0.92.0/testing/bench.ts";
 // export {
 //   decodeString as decodeHex,

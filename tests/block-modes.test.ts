@@ -1,10 +1,6 @@
 import { Aes } from "../aes.ts";
 import { Cbc, Cfb, Ctr, Ecb, Ofb } from "../block-modes.ts";
-import {
-  assertEquals,
-  assertThrows,
-  decodeHex
-} from "../dev_deps.ts";
+import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
 
 const key = new Uint8Array(16);
 const iv = new Uint8Array(16);
@@ -19,7 +15,7 @@ Deno.test("[Block Cipher Mode] Base", () => {
       cipher.decrypt(new Uint8Array(4));
     },
     Error,
-    "Invalid data size (must be multiple of 16 bytes)"
+    "Invalid data size (must be multiple of 16 bytes)",
   );
 
   assertThrows(
@@ -28,7 +24,7 @@ Deno.test("[Block Cipher Mode] Base", () => {
       cipher.encrypt(new Uint8Array(4));
     },
     Error,
-    "Invalid initialization vector size (must be 16 bytes)"
+    "Invalid initialization vector size (must be 16 bytes)",
   );
 });
 
@@ -81,9 +77,7 @@ Deno.test("[Block Cipher Mode] ECB", () => {
     const dec = cipher.decrypt(enc);
     assertEquals(dec, plain);
   }
-
 });
-
 
 Deno.test("[Block Cipher Mode] CBC", () => {
   const cipher = new Cbc(Aes, key, iv);
