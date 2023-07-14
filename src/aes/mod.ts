@@ -1,5 +1,6 @@
-import { S, SI, T1, T2, T3, T4, T5, T6, T7, T8 } from "./consts.ts";
 import { BlockCipher } from "../block-modes/base.ts";
+import { bytesToWords } from "../utils/bytes.ts";
+import { S, SI, T1, T2, T3, T4, T5, T6, T7, T8 } from "./consts.ts";
 
 /**
  * Advanced Encryption Standard (AES) block cipher.
@@ -12,8 +13,8 @@ export class Aes implements BlockCipher {
    * The block size of the block cipher in bytes
    */
   static readonly BLOCK_SIZE = 16;
-  #ke: DataView;
-  #kd: DataView;
+  #ke: Uint32Array;
+  #kd: Uint32Array;
   #nr: number;
 
   constructor(key: Uint8Array) {
@@ -21,167 +22,131 @@ export class Aes implements BlockCipher {
       throw new Error("Invalid key size (must be either 16, 24 or 32 bytes)");
     }
 
-    const keyView = new DataView(key.buffer, key.byteOffset, key.byteLength);
     const keyLen = key.length / 4;
     const rkc = key.length + 28;
+    const ke = new Uint32Array(rkc);
+    ke.set(bytesToWords(key), 0);
+    const kd = new Uint32Array(rkc);
 
-    this.#nr = (rkc - 4) * 4;
-    this.#ke = new DataView(new ArrayBuffer(rkc * 4));
-    this.#kd = new DataView(new ArrayBuffer(rkc * 4));
-
-    for (let i = 0; i < key.length; i += 4) {
-      this.#ke.setUint32(i * 4, keyView.getUint32(i));
-    }
-
-    let rcon = 1;
-    for (let i = keyLen; i < rkc; i++) {
-      let tmp = this.#ke.getUint32((i - 1) * 4);
+    let i, j, tmp, rcon = 1;
+    for (i = keyLen; i < 4 * keyLen + 28; i++) {
+      tmp = ke[i - 1];
 
       if (i % keyLen === 0 || (keyLen === 8 && i % keyLen === 4)) {
-        tmp = S.getUint8(tmp >>> 24) << 24 ^
-          S.getUint8(tmp >> 16 & 0xff) << 16 ^
-          S.getUint8(tmp >> 8 & 0xff) << 8 ^
-          S.getUint8(tmp & 0xff);
+        tmp = S[tmp >>> 24] << 24 ^ S[tmp >> 16 & 255] << 16 ^
+          S[tmp >> 8 & 255] << 8 ^ S[tmp & 255];
 
         if (i % keyLen === 0) {
           tmp = tmp << 8 ^ tmp >>> 24 ^ rcon << 24;
-          rcon = rcon << 1 ^ (rcon >> 7) * 0x11b;
+          rcon = rcon << 1 ^ (rcon >> 7) * 283;
         }
       }
 
-      this.#ke.setUint32(
-        i * 4,
-        this.#ke.getUint32((i - keyLen) * 4) ^ tmp,
-      );
+      ke[i] = ke[i - keyLen] ^ tmp;
     }
 
-    for (let j = 0, i = rkc; i; j++, i--) {
-      const tmp = this.#ke.getUint32(j & 3 ? i * 4 : (i - 4) * 4);
+    for (j = 0; i; j++, i--) {
+      tmp = ke[j & 3 ? i : i - 4];
       if (i <= 4 || j < 4) {
-        this.#kd.setUint32(j * 4, tmp);
+        kd[j] = tmp;
       } else {
-        this.#kd.setUint32(
-          j * 4,
-          T5.getUint32(S.getUint8(tmp >>> 24) * 4) ^
-            T6.getUint32(S.getUint8(tmp >> 16 & 0xff) * 4) ^
-            T7.getUint32(S.getUint8(tmp >> 8 & 0xff) * 4) ^
-            T8.getUint32(S.getUint8(tmp & 0xff) * 4),
-        );
+        kd[j] = T5[S[tmp >>> 24]] ^
+          T6[S[tmp >> 16 & 255]] ^
+          T7[S[tmp >> 8 & 255]] ^
+          T8[S[tmp & 255]];
       }
     }
+
+    this.#nr = ke.length / 4 - 2;
+    this.#ke = ke;
+    this.#kd = kd;
   }
 
   encryptBlock(data: DataView, offset: number) {
-    let t0 = data.getUint32(offset) ^ this.#ke.getUint32(0);
-    let t1 = data.getUint32(offset + 4) ^ this.#ke.getUint32(4);
-    let t2 = data.getUint32(offset + 8) ^ this.#ke.getUint32(8);
-    let t3 = data.getUint32(offset + 12) ^ this.#ke.getUint32(12);
-    let a0, a1, a2;
+    const k = this.#ke;
+    let a = data.getUint32(offset + 0) ^ k[0],
+      b = data.getUint32(offset + 4) ^ k[1],
+      c = data.getUint32(offset + 8) ^ k[2],
+      d = data.getUint32(offset + 12) ^ k[3],
+      a2,
+      b2,
+      c2,
+      i,
+      ki = 4;
 
-    for (let i = 16; i < this.#nr; i += 16) {
-      a0 = T1.getUint32((t0 >>> 24) * 4) ^
-        T2.getUint32((t1 >> 16 & 0xff) * 4) ^
-        T3.getUint32((t2 >> 8 & 0xff) * 4) ^
-        T4.getUint32((t3 & 0xff) * 4) ^
-        this.#ke.getUint32(i);
-      a1 = T1.getUint32((t1 >>> 24) * 4) ^
-        T2.getUint32((t2 >> 16 & 0xff) * 4) ^
-        T3.getUint32((t3 >> 8 & 0xff) * 4) ^
-        T4.getUint32((t0 & 0xff) * 4) ^
-        this.#ke.getUint32(i + 4);
-      a2 = T1.getUint32((t2 >>> 24) * 4) ^
-        T2.getUint32((t3 >> 16 & 0xff) * 4) ^
-        T3.getUint32((t0 >> 8 & 0xff) * 4) ^
-        T4.getUint32((t1 & 0xff) * 4) ^
-        this.#ke.getUint32(i + 8);
-      t3 = T1.getUint32((t3 >>> 24) * 4) ^
-        T2.getUint32((t0 >> 16 & 0xff) * 4) ^
-        T3.getUint32((t1 >> 8 & 0xff) * 4) ^
-        T4.getUint32((t2 & 0xff) * 4) ^
-        this.#ke.getUint32(i + 12);
-      t0 = a0, t1 = a1, t2 = a2;
+    for (i = 0; i < this.#nr; i++) {
+      a2 = T1[a >>> 24] ^ T2[b >> 16 & 255] ^ T3[c >> 8 & 255] ^ T4[d & 255] ^
+        k[ki];
+      b2 = T1[b >>> 24] ^ T2[c >> 16 & 255] ^ T3[d >> 8 & 255] ^ T4[a & 255] ^
+        k[ki + 1];
+      c2 = T1[c >>> 24] ^ T2[d >> 16 & 255] ^ T3[a >> 8 & 255] ^ T4[b & 255] ^
+        k[ki + 2];
+      d = T1[d >>> 24] ^ T2[a >> 16 & 255] ^ T3[b >> 8 & 255] ^ T4[c & 255] ^
+        k[ki + 3];
+      ki += 4;
+      a = a2;
+      b = b2;
+      c = c2;
     }
 
-    data.setUint32(
-      offset,
-      S.getUint8(t0 >>> 24) << 24 ^ S.getUint8(t1 >> 16 & 0xff) << 16 ^
-        S.getUint8(t2 >> 8 & 0xff) << 8 ^ S.getUint8(t3 & 0xff) ^
-        this.#ke.getUint32(this.#nr),
-    );
-    data.setUint32(
-      offset + 4,
-      S.getUint8(t1 >>> 24) << 24 ^ S.getUint8(t2 >> 16 & 0xff) << 16 ^
-        S.getUint8(t3 >> 8 & 0xff) << 8 ^ S.getUint8(t0 & 0xff) ^
-        this.#ke.getUint32(this.#nr + 4),
-    );
-    data.setUint32(
-      offset + 8,
-      S.getUint8(t2 >>> 24) << 24 ^ S.getUint8(t3 >> 16 & 0xff) << 16 ^
-        S.getUint8(t0 >> 8 & 0xff) << 8 ^ S.getUint8(t1 & 0xff) ^
-        this.#ke.getUint32(this.#nr + 8),
-    );
-    data.setUint32(
-      offset + 12,
-      S.getUint8(t3 >>> 24) << 24 ^ S.getUint8(t0 >> 16 & 0xff) << 16 ^
-        S.getUint8(t1 >> 8 & 0xff) << 8 ^ S.getUint8(t2 & 0xff) ^
-        this.#ke.getUint32(this.#nr + 12),
-    );
+    for (i = 0; i < 4; i++) {
+      data.setUint32(
+        offset + i * 4,
+        S[a >>> 24] << 24 ^
+          S[b >> 16 & 255] << 16 ^
+          S[c >> 8 & 255] << 8 ^
+          S[d & 255] ^
+          k[ki++],
+      );
+      a2 = a;
+      a = b;
+      b = c;
+      c = d;
+      d = a2;
+    }
   }
 
   decryptBlock(data: DataView, offset: number) {
-    let t0 = data.getUint32(offset) ^ this.#kd.getUint32(0);
-    let t1 = data.getUint32(offset + 4) ^ this.#kd.getUint32(12);
-    let t2 = data.getUint32(offset + 8) ^ this.#kd.getUint32(8);
-    let t3 = data.getUint32(offset + 12) ^ this.#kd.getUint32(4);
-    let a0, a1, a2;
+    const k = this.#kd;
+    let a = data.getUint32(offset + 0) ^ k[0],
+      b = data.getUint32(offset + 12) ^ k[1],
+      c = data.getUint32(offset + 8) ^ k[2],
+      d = data.getUint32(offset + 4) ^ k[3],
+      a2,
+      b2,
+      c2,
+      i,
+      ki = 4;
 
-    for (let i = 16; i < this.#nr; i += 16) {
-      a0 = T5.getUint32((t0 >>> 24) * 4) ^
-        T6.getUint32((t3 >> 16 & 0xff) * 4) ^
-        T7.getUint32((t2 >> 8 & 0xff) * 4) ^
-        T8.getUint32((t1 & 0xff) * 4) ^
-        this.#kd.getUint32(i);
-      a1 = T5.getUint32((t1 >>> 24) * 4) ^
-        T6.getUint32((t0 >> 16 & 0xff) * 4) ^
-        T7.getUint32((t3 >> 8 & 0xff) * 4) ^
-        T8.getUint32((t2 & 0xff) * 4) ^
-        this.#kd.getUint32(i + 12);
-      a2 = T5.getUint32((t2 >>> 24) * 4) ^
-        T6.getUint32((t1 >> 16 & 0xff) * 4) ^
-        T7.getUint32((t0 >> 8 & 0xff) * 4) ^
-        T8.getUint32((t3 & 0xff) * 4) ^
-        this.#kd.getUint32(i + 8);
-      t3 = T5.getUint32((t3 >>> 24) * 4) ^
-        T6.getUint32((t2 >> 16 & 0xff) * 4) ^
-        T7.getUint32((t1 >> 8 & 0xff) * 4) ^
-        T8.getUint32((t0 & 0xff) * 4) ^
-        this.#kd.getUint32(i + 4);
-      t0 = a0, t1 = a1, t2 = a2;
+    for (i = 0; i < this.#nr; i++) {
+      a2 = T5[a >>> 24] ^ T6[b >> 16 & 255] ^ T7[c >> 8 & 255] ^ T8[d & 255] ^
+        k[ki];
+      b2 = T5[b >>> 24] ^ T6[c >> 16 & 255] ^ T7[d >> 8 & 255] ^ T8[a & 255] ^
+        k[ki + 1];
+      c2 = T5[c >>> 24] ^ T6[d >> 16 & 255] ^ T7[a >> 8 & 255] ^ T8[b & 255] ^
+        k[ki + 2];
+      d = T5[d >>> 24] ^ T6[a >> 16 & 255] ^ T7[b >> 8 & 255] ^ T8[c & 255] ^
+        k[ki + 3];
+      ki += 4;
+      a = a2;
+      b = b2;
+      c = c2;
     }
 
-    data.setUint32(
-      offset,
-      SI.getUint8(t0 >>> 24) << 24 ^ SI.getUint8(t3 >> 16 & 0xff) << 16 ^
-        SI.getUint8(t2 >> 8 & 0xff) << 8 ^ SI.getUint8(t1 & 0xff) ^
-        this.#kd.getUint32(this.#nr),
-    );
-    data.setUint32(
-      offset + 4,
-      SI.getUint8(t1 >>> 24) << 24 ^ SI.getUint8(t0 >> 16 & 0xff) << 16 ^
-        SI.getUint8(t3 >> 8 & 0xff) << 8 ^ SI.getUint8(t2 & 0xff) ^
-        this.#kd.getUint32(this.#nr + 12),
-    );
-    data.setUint32(
-      offset + 8,
-      SI.getUint8(t2 >>> 24) << 24 ^ SI.getUint8(t1 >> 16 & 0xff) << 16 ^
-        SI.getUint8(t0 >> 8 & 0xff) << 8 ^ SI.getUint8(t3 & 0xff) ^
-        this.#kd.getUint32(this.#nr + 8),
-    );
-    data.setUint32(
-      offset + 12,
-      SI.getUint8(t3 >>> 24) << 24 ^ SI.getUint8(t2 >> 16 & 0xff) << 16 ^
-        SI.getUint8(t1 >> 8 & 0xff) << 8 ^ SI.getUint8(t0 & 0xff) ^
-        this.#kd.getUint32(this.#nr + 4),
-    );
+    for (i = 0; i < 4; i++) {
+      data.setUint32(
+        offset + (3 & -i) * 4,
+        SI[a >>> 24] << 24 ^
+          SI[b >> 16 & 255] << 16 ^
+          SI[c >> 8 & 255] << 8 ^
+          SI[d & 255] ^
+          k[ki++],
+      );
+      a2 = a;
+      a = b;
+      b = c;
+      c = d;
+      d = a2;
+    }
   }
 }

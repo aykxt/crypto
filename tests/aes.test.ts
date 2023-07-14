@@ -1,5 +1,5 @@
-import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
 import { Aes } from "../aes.ts";
+import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
 
 // https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/aes/AESAVS.pdf
 
@@ -70,6 +70,26 @@ Deno.test("[Block Cipher] AES-256", () => {
     const dataView = new DataView(data.buffer);
     aes.encryptBlock(dataView, 0);
     assertEquals(data, decodeHex(chiphertext));
+    aes.decryptBlock(dataView, 0);
+    assertEquals(data, decodeHex(plaintext));
+  }
+});
+
+Deno.test("[Block Cipher] AES-128 2.0", () => {
+  const plaintext = "00000000000000000000000000000000";
+  const testVectors: readonly [string, string][] = [
+    ["10a58869d74be5a374cf867cfb473859", "6d251e6944b051e04eaa6fb4dbf78465"],
+    ["caea65cdbb75e9169ecd22ebe6e54675", "6e29201190152df4ee058139def610bb"],
+    ["a2e2fa9baf7d20822ca9f0542f764a41", "c3b44b95d9d2f25670eee9a0de099fa3"],
+  ];
+
+  for (const [key, chiphertext] of testVectors) {
+    const aes = new Aes(decodeHex(key));
+    const data = decodeHex(plaintext);
+    const dataView = new DataView(data.buffer);
+    aes.encryptBlock(dataView, 0);
+    assertEquals(data, decodeHex(chiphertext));
+
     aes.decryptBlock(dataView, 0);
     assertEquals(data, decodeHex(plaintext));
   }
