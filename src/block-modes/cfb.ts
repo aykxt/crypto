@@ -22,7 +22,7 @@ export class Cfb<T extends BlockCipher> extends BlockCipherMode<T> {
   encrypt(data: Uint8Array): Uint8Array {
     data = pad(data, this.padding, this.blockSize);
 
-    const view = new DataView(data.buffer);
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
     const encrypted = new Uint8Array(data.length);
     const encryptedView = new DataView(encrypted.buffer);
 
