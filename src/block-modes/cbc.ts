@@ -45,7 +45,7 @@ export class Cbc<T extends BlockCipher> extends BlockCipherMode<T> {
   decrypt(data: Uint8Array): Uint8Array {
     this.checkBlockSize(data.length);
 
-    const view = new DataView(data.buffer);
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
     const decrypted = data.slice();
     const decryptedView = new DataView(decrypted.buffer);
 
