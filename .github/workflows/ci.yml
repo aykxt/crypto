@@ -12,15 +12,15 @@ jobs:
 
     strategy:
       matrix:
-        deno: ["v1.x", "canary"]
+        deno: ["v1.x", "v2.x", "canary"]
         os: [ubuntu-latest]
 
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno }}
 
@@ -31,13 +31,13 @@ jobs:
         run: deno test
 
       - name: Create coverage report
-        if: matrix.deno == 'v1.x'
+        if: matrix.deno == 'v2.x'
         run: |
           deno test --coverage=.coverage
           deno coverage ./.coverage --lcov > coverage.lcov
 
       - name: Upload coverage report
-        if: matrix.deno == 'v1.x'
-        uses: codecov/codecov-action@v1
+        if: matrix.deno == 'v2.x'
+        uses: codecov/codecov-action@v5
         with:
-          file: ./coverage.lcov
+          files: ./coverage.lcov
