@@ -1,6 +1,7 @@
 import { AES as GodCryptoAES } from "https://deno.land/x/god_crypto@v1.4.11/aes.ts";
 import { Aes } from "../aes.ts";
 import { Cbc, Cfb, Ctr, Ecb, Ofb } from "../block-modes.ts";
+import { Ige } from "../src/block-modes/ige.ts";
 
 const key = new Uint8Array(16);
 const iv = new Uint8Array(Aes.BLOCK_SIZE);
@@ -67,6 +68,22 @@ Deno.bench({
   fn() {
     const cipher = new Ctr(Aes, key, iv);
     cipher.encrypt(data);
+  },
+});
+
+Deno.bench({
+  name: "AES-128-IGE 2MiB Encrypt",
+  fn() {
+    const cipher = new Ige(Aes, key, new Uint8Array(Aes.BLOCK_SIZE * 2));
+    cipher.encrypt(data);
+  },
+});
+
+Deno.bench({
+  name: "AES-128-IGE 2MiB Decrypt",
+  fn() {
+    const cipher = new Ige(Aes, key, new Uint8Array(Aes.BLOCK_SIZE * 2));
+    cipher.decrypt(data);
   },
 });
 

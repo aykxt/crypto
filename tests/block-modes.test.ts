@@ -1,10 +1,20 @@
 import { Aes } from "../aes.ts";
-import { Cbc, Cfb, Ctr, Ecb, Ofb } from "../block-modes.ts";
+import { Cbc, Cfb, Ctr, Ecb, Ige, Ofb } from "../block-modes.ts";
 import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
 
 const key = new Uint8Array(16);
 const iv = new Uint8Array(16);
 const original = new Uint8Array(64);
+
+interface TestVector {
+  key: string;
+  plain: string;
+  cipher: string;
+}
+
+interface TestVectorWithIV extends TestVector {
+  iv: string;
+}
 
 // TODO: Test with test vectors
 
@@ -29,12 +39,6 @@ Deno.test("[Block Cipher Mode] Base", () => {
 });
 
 Deno.test("[Block Cipher Mode] ECB", () => {
-  interface TestVector {
-    key: string;
-    plain: string;
-    cipher: string;
-  }
-
   const testVectors: TestVector[] = [
     {
       key: "000102030405060708090a0b0c0d0e0f",
@@ -110,4 +114,39 @@ Deno.test("[Block Cipher Mode] CTR", () => {
   const enc = cipher.encrypt(original);
   const dec = decipher.decrypt(enc);
   assertEquals(dec, original);
+});
+
+Deno.test("[Block Cipher Mode] IGE", () => {
+  // https://www.links.org/files/openssl-ige.pdf
+  const testVectors: TestVectorWithIV[] = [
+    {
+      key: "000102030405060708090A0B0C0D0E0F",
+      iv: "000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F",
+      plain: "0000000000000000000000000000000000000000000000000000000000000000",
+      cipher:
+        "1A8519A6557BE652E9DA8E43DA4EF4453CF456B4CA488AA383C79C98B34797CB",
+    },
+    {
+      key: "5468697320697320616E20696D706C65",
+      iv: "6D656E746174696F6E206F6620494745206D6F646520666F72204F70656E5353",
+      plain: "99706487A1CDE613BC6DE0B6F24B1C7AA448C8B9C3403E3467A8CAD89340F53B",
+      cipher:
+        "4C2E204C6574277320686F70652042656E20676F74206974207269676874210A",
+    },
+  ];
+
+  for (const testVector of testVectors) {
+    const key = decodeHex(testVector.key);
+    const iv = decodeHex(testVector.iv);
+    const plaintext = decodeHex(testVector.plain);
+    const ciphertext = decodeHex(testVector.cipher);
+
+    const cipher = new Ige(Aes, key, iv);
+    const enc = cipher.encrypt(plaintext);
+    assertEquals(enc, ciphertext);
+
+    const decipher = new Ige(Aes, key, iv);
+    const dec = decipher.decrypt(ciphertext);
+    assertEquals(dec, plaintext);
+  }
 });

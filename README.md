@@ -24,7 +24,7 @@
 - [CAST5] (CAST-128)
 - [DES]
 - [3DES]
-- ECB, CBC, CFB, OFB and CTR [block modes]
+- ECB, CBC, CFB, OFB, CTR and IGE [block modes]
 
 ### [Message Authentication Code] algorithms (MACs)
 
