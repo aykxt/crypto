@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        deno: ["v1.x", "v2.x", "canary"]
+        deno: ["v1.x", "v2.x"]
         os: [ubuntu-latest]
 
     steps:
