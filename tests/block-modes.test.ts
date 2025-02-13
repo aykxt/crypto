@@ -1,6 +1,7 @@
+import { assertEquals, assertThrows } from "@std/assert";
+import { decodeHex } from "@std/encoding/hex";
 import { Aes } from "../aes.ts";
 import { Cbc, Cfb, Ctr, Ecb, Ige, Ofb } from "../block-modes.ts";
-import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
 
 const key = new Uint8Array(16);
 const iv = new Uint8Array(16);

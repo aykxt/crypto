@@ -1,4 +1,5 @@
-import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
+import { assertEquals, assertThrows } from "@std/assert";
+import { decodeHex } from "@std/encoding/hex";
 import { TripleDes } from "../tdes.ts";
 
 Deno.test("[Block Cipher] 3DES", () => {

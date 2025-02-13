@@ -1,6 +1,5 @@
-import { createHash, SupportedAlgorithm } from "../../deps.ts";
-
-export type { SupportedAlgorithm } from "../../deps.ts";
+import { createHash, SupportedAlgorithm } from "@std/hash";
+export type { SupportedAlgorithm } from "@std/hash";
 
 export const blockSizes: Record<SupportedAlgorithm, number> = {
   "sha3-512": 72,
@@ -21,6 +20,8 @@ export const blockSizes: Record<SupportedAlgorithm, number> = {
   keccak384: 48,
   keccak256: 136,
   keccak224: 144,
+  blake3: 64,
+  tiger: 64,
 };
 
 export const outputSizes: Record<SupportedAlgorithm, number> = {
@@ -42,6 +43,8 @@ export const outputSizes: Record<SupportedAlgorithm, number> = {
   keccak384: 48,
   keccak256: 32,
   keccak224: 28,
+  blake3: 32,
+  tiger: 24,
 };
 
 /**

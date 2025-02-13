@@ -1,4 +1,5 @@
-import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
+import { assertEquals, assertThrows } from "@std/assert";
+import { decodeHex } from "@std/encoding/hex";
 import { Blowfish } from "../blowfish.ts";
 
 Deno.test("[Block Cipher] Blowfish", () => {

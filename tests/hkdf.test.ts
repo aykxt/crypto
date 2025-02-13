@@ -1,5 +1,6 @@
+import { assertEquals } from "@std/assert";
+import { decodeHex } from "@std/encoding/hex";
 import { hkdf } from "../hkdf.ts";
-import { assertEquals, decodeHex } from "../dev_deps.ts";
 
 // https://tools.ietf.org/html/rfc5869#appendix-A
 

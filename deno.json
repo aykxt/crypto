@@ -1,0 +1,19 @@
+{
+  "lock": false,
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1.0.0",
+    "@std/encoding/hex": "jsr:@std/encoding@^1.0.0/hex",
+    "@std/hash": "https://deno.land/std@0.160.0/hash/mod.ts"
+  },
+  "exports": {
+    "./aes": "./aes.ts",
+    "./block-modes": "./block-modes.ts",
+    "./blowfish": "./blowfish.ts",
+    "./cast5": "./cast5.ts",
+    "./des": "./des.ts",
+    "./hkdf": "./hkdf.ts",
+    "./hmac": "./hmac.ts",
+    "./pbkdf2": "./pbkdf2.ts",
+    "./tdes": "./tdes.ts"
+  }
+}

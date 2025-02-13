@@ -1,5 +1,6 @@
+import { assertEquals, assertThrows } from "@std/assert";
+import { decodeHex } from "@std/encoding/hex";
 import { Cast5 } from "../cast5.ts";
-import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
 
 // https://tools.ietf.org/html/rfc2144#appendix-B.1
 

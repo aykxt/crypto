@@ -1,4 +1,4 @@
-import { assertEquals, assertThrows } from "../dev_deps.ts";
+import { assertEquals, assertThrows } from "@std/assert";
 import { pad, Padding, unpad } from "../src/utils/padding.ts";
 
 Deno.test("[Padding] PKCS#7", () => {

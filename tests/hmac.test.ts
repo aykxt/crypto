@@ -1,5 +1,6 @@
+import { assertEquals } from "@std/assert";
+import { decodeHex } from "@std/encoding/hex";
 import { hmac, SupportedAlgorithm } from "../hmac.ts";
-import { assertEquals, decodeHex } from "../dev_deps.ts";
 
 // https://tools.ietf.org/html/rfc4231#section-4
 

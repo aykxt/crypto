@@ -1,5 +1,5 @@
-import { hmac, outputSizes } from "../hmac/mod.ts";
 import type { SupportedAlgorithm } from "../hmac/mod.ts";
+import { hmac, outputSizes } from "../hmac/mod.ts";
 
 export type { SupportedAlgorithm };
 
@@ -12,7 +12,7 @@ export function hkdf(
   ikm: Uint8Array,
   salt?: Uint8Array,
   info?: Uint8Array,
-) {
+): Uint8Array {
   const hashLen = outputSizes[hash];
 
   if (!salt) salt = new Uint8Array(hashLen);

@@ -1,5 +1,6 @@
+import { assertEquals } from "@std/assert";
+import { decodeHex } from "@std/encoding/hex";
 import { pbkdf2 } from "../src/pbkdf2/mod.ts";
-import { assertEquals, decodeHex } from "../dev_deps.ts";
 
 // https://tools.ietf.org/html/rfc6070#section-2
 Deno.test("[KDF] PBKDF2 HMAC-SHA1", () => {

@@ -1,5 +1,6 @@
+import { assertEquals, assertThrows } from "@std/assert";
+import { decodeHex } from "@std/encoding/hex";
 import { Aes } from "../aes.ts";
-import { assertEquals, assertThrows, decodeHex } from "../dev_deps.ts";
 
 // https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/aes/AESAVS.pdf
 
