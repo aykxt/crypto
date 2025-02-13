@@ -1,4 +1,3 @@
-import { AES as GodCryptoAES } from "https://deno.land/x/god_crypto@v1.4.11/aes.ts";
 import { Aes } from "../aes.ts";
 import { Cbc, Cfb, Ctr, Ecb, Ofb } from "../block-modes.ts";
 import { Ige } from "../src/block-modes/ige.ts";
@@ -84,65 +83,5 @@ Deno.bench({
   fn() {
     const cipher = new Ige(Aes, key, new Uint8Array(Aes.BLOCK_SIZE * 2));
     cipher.decrypt(data);
-  },
-});
-
-Deno.bench({
-  name: "AES-128-ECB (GodCrypto) 2MiB Encrypt",
-  async fn() {
-    const cipher = new GodCryptoAES(key, { mode: "ecb" });
-    await cipher.encrypt(data);
-  },
-});
-
-Deno.bench({
-  name: "AES-128-ECB (GodCrypto) 2MiB Decrypt",
-  async fn() {
-    const cipher = new GodCryptoAES(key, { mode: "ecb" });
-    await cipher.decrypt(data);
-  },
-});
-
-Deno.bench({
-  name: "AES-128-CBC (GodCrypto) 2MiB Encrypt",
-  async fn() {
-    const cipher = new GodCryptoAES(key, {
-      mode: "cbc",
-      iv,
-    });
-    await cipher.encrypt(data);
-  },
-});
-
-Deno.bench({
-  name: "AES-128-CBC (GodCrypto) 2MiB Decrypt",
-  async fn() {
-    const cipher = new GodCryptoAES(key, {
-      mode: "cbc",
-      iv,
-    });
-    await cipher.decrypt(data);
-  },
-});
-
-Deno.bench({
-  name: "AES-128-CFB (GodCrypto) 2MiB Encrypt",
-  async fn() {
-    const cipher = new GodCryptoAES(key, {
-      mode: "cfb",
-      iv,
-    });
-    await cipher.encrypt(data);
-  },
-});
-
-Deno.bench({
-  name: "AES-128-CFB (GodCrypto) 2MiB Decrypt",
-  async fn() {
-    const cipher = new GodCryptoAES(key, {
-      mode: "cfb",
-      iv,
-    });
-    await cipher.decrypt(data);
   },
 });
