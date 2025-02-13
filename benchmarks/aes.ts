@@ -4,6 +4,7 @@ import { Ige } from "../src/block-modes/ige.ts";
 
 const key = new Uint8Array(16);
 const iv = new Uint8Array(Aes.BLOCK_SIZE);
+const iv2 = new Uint8Array(Aes.BLOCK_SIZE * 2);
 const data = new Uint8Array(1024 * 1024 * 2);
 
 Deno.bench({
@@ -35,6 +36,29 @@ Deno.bench({
   fn() {
     const cipher = new Cbc(Aes, key, iv);
     cipher.decrypt(data);
+  },
+});
+
+Deno.bench({
+  name: "AES-128-CBC 2MiB Encrypt (WebCrypto)",
+  async fn() {
+    const ckey = await crypto.subtle.importKey(
+      "raw",
+      key,
+      {
+        name: "AES-CBC",
+      },
+      true,
+      ["encrypt"],
+    );
+    await crypto.subtle.encrypt(
+      {
+        name: "AES-CBC",
+        iv,
+      },
+      ckey,
+      data,
+    );
   },
 });
 
@@ -73,7 +97,7 @@ Deno.bench({
 Deno.bench({
   name: "AES-128-IGE 2MiB Encrypt",
   fn() {
-    const cipher = new Ige(Aes, key, new Uint8Array(Aes.BLOCK_SIZE * 2));
+    const cipher = new Ige(Aes, key, iv2);
     cipher.encrypt(data);
   },
 });
@@ -81,7 +105,7 @@ Deno.bench({
 Deno.bench({
   name: "AES-128-IGE 2MiB Decrypt",
   fn() {
-    const cipher = new Ige(Aes, key, new Uint8Array(Aes.BLOCK_SIZE * 2));
+    const cipher = new Ige(Aes, key, iv2);
     cipher.decrypt(data);
   },
 });
