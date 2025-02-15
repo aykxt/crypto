@@ -15,5 +15,8 @@
     "./hmac": "./hmac.ts",
     "./pbkdf2": "./pbkdf2.ts",
     "./tdes": "./tdes.ts"
-  }
+  },
+  "exclude": [
+    "CHANGELOG.md"
+  ]
 }
